@@ -46,9 +46,13 @@ async def test_review_api_requires_dataset_scoped_record_key(preview_environment
     assert response.json()["record_key"] == tender["record_key"]
     assert response.json()["source_record"]["record_key"] == tender["record_key"]
     assert response.json()["report"]["source_id"] == tender["source_id"]
+    assert {event["event_type"] for event in response.json()["audit_events"]} == {"mcp_tool_call", "model_call"}
+    assert len({event["request_id"] for event in response.json()["audit_events"]}) == 1
     assert draft.status_code == 200
     assert draft.json()["record_key"] == tender["record_key"]
     assert draft.json()["external_action_taken"] is False
+    assert len(draft.json()["audit_events"]) == 1
+    assert draft.json()["audit_events"][0]["tool"] == "draft_review_memo"
 
 
 @pytest.mark.asyncio

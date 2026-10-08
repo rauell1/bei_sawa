@@ -8,6 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     BEISAWA_HOME=/app \
     BEISAWA_DATA_DIR=/app/backend/beisawa/data \
     BEISAWA_RUNTIME_DIR=/app/var \
+    BEISAWA_ENGINE_REQUIRE_AUTH=1 \
     MCP_FILESYSTEM_COMMAND=/usr/local/bin/mcp-server-filesystem
 
 # The official filesystem MCP server is a Node process; copy the supported Node runtime.

@@ -4,18 +4,21 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 import json
+import os
 from typing import Any, AsyncIterator
 from uuid import uuid4
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
+from starlette.responses import JSONResponse
 
 from beisawa.agent import run_review
 from beisawa.audit import get_audit_logger
 from beisawa.config import get_settings
 from beisawa.mcp_client import MCPGateway, MCPToolError
 from beisawa.ollama import ModelOutputError, ModelUnavailableError
+from beisawa.auth import authenticate_reviewer
 
 
 class ReviewRequest(BaseModel):
@@ -101,6 +104,20 @@ app = FastAPI(
 )
 
 
+@app.middleware("http")
+async def authenticate_engine(request: Request, call_next):
+    """The deployed engine independently verifies the reviewer's Neon JWT."""
+    if os.getenv("BEISAWA_ENGINE_REQUIRE_AUTH") == "1":
+        try:
+            request.state.reviewer_id = await authenticate_reviewer(request.headers.get("authorization", ""))
+        except HTTPException as exc:
+            return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+        # Never expose the engine's aggregate scratch log to an individual.
+        if request.url.path == "/api/v1/audit":
+            return JSONResponse({"detail": "Use your private workspace activity API"}, status_code=404)
+    return await call_next(request)
+
+
 @asynccontextmanager
 async def _gateway_scope(
     request: Request,
@@ -169,11 +186,13 @@ async def review_tender(payload: ReviewRequest, request: Request) -> dict[str, A
             include_filesystem=True,
             request_id=request_id,
         ) as gateway:
-            return await run_review(
+            result = await run_review(
                 payload.record_key,
                 request_id=request_id,
                 gateway=gateway,
             )
+            result["audit_events"] = get_audit_logger().for_request(request_id)
+            return result
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ModelUnavailableError as exc:
@@ -207,6 +226,7 @@ async def save_draft(payload: DraftRequest, request: Request) -> dict[str, Any]:
     if isinstance(result, dict) and result.get("error"):
         status = 422 if result["error"] in {"draft_rejected", "record_mismatch", "invalid_report_json"} else 404
         raise HTTPException(status_code=status, detail=result.get("message", result["error"]))
+    result["audit_events"] = get_audit_logger().for_request(request_id)
     return result
 
 

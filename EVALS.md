@@ -37,3 +37,24 @@ The current sandbox has neither `ollama` nor `docker` installed. **No Qwen 2.5 i
 4. Test authenticated named approval against the exact immutable review revision/hash, replay/tampering behavior, and least-privilege worker/filing roles after those controls exist. The present prototype has none of them.
 5. Verify clean container builds, empty-volume recovery, hosting region, authentication, retention and evaluator access before making deployment claims.
 6. Record a real, unaltered demo video only after the chosen data and account permissions are approved; clearly label synthetic content when used.
+
+## Neon integration validation (8 October 2026)
+
+- Python suite: **33 passed**, including independent JWT verification, denial of
+  forged/expired/wrong-issuer/anonymous tokens, request-scoped audit extraction,
+  and blocking the hosted engine's aggregate audit endpoint.
+- `npm run test:neon`: **10 passed** with signed JWTs, embedded PostgreSQL, fake
+  object storage and engine. Covers owner isolation, durable draft metadata and
+  download after handler restart, canonical report rejection, storage/transaction
+  failures, and preserving bytes when a commit's outcome is unknown.
+- Neon TypeScript check, Function bundling, frozen npm installs, and Next.js
+  production build passed. The real API entry and private draft bucket config
+  loaded successfully with a test engine URL.
+- HTTP frontend checks with a local Auth protocol fixture: unauthenticated page
+  redirected to `/login`, API returned 401, and cross-origin draft mutation was
+  rejected. Explicit local mode still completed a review and citation-validated
+  draft save against the Python/MCP engine.
+- **Not run live:** production Neon Auth signup/sign-in/sign-out/email recovery,
+  real Neon database/S3 calls, Function deployment, Vercel domain/DNS, or Qwen
+  inference. Neon credentials and a deployed Python engine URL are still needed.
+  These local results do not satisfy the live verification required before merge.

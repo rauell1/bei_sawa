@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "BeiSawa — Value-for-Money Review Agent",
   description:
-    "A synthetic-data procurement review prototype with cited drafts. No authenticated approval or filing path is implemented.",
+    "A synthetic-data procurement review desk with cited drafts and a private reviewer workspace. No approval or filing action is implemented.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
