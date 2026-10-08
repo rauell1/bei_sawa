@@ -1,0 +1,8 @@
+{
+  "name": "bei-sawa-supporting-mcp",
+  "private": true,
+  "description": "Pinned community filesystem MCP server used by BeiSawa",
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "2026.8.31"
+  }
+}

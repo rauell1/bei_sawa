@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Local runtime data (drafts and audit logs)
+var/*
+!var/.gitkeep
+
+# Environment / editor
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/
+.idea/

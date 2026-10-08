@@ -1,0 +1,118 @@
+{
+  "dataset_id": "beisawa-synthetic-ocds-demo-v1",
+  "provenance": "synthetic_demo_data",
+  "notice": "All records below are invented for demonstration and evaluation. They are not real procurements, suppliers, people, or findings.",
+  "records": [
+    {
+      "ocid": "ocds-beisawa-demo-2026-0001",
+      "id": "record-demo-0001",
+      "compiledRelease": {
+        "ocid": "ocds-beisawa-demo-2026-0001",
+        "id": "release-demo-0001-01",
+        "date": "2026-03-12T09:30:00Z",
+        "tag": ["compiled"],
+        "initiationType": "tender",
+        "tender": {
+          "id": "TND-DEMO-001",
+          "title": "Synthetic county clinic roofing materials",
+          "description": "Invented example for demonstrating value-for-money checks.",
+          "status": "complete",
+          "procurementMethod": "open",
+          "numberOfTenderers": 1,
+          "value": { "amount": 10000000, "currency": "KES" }
+        },
+        "awards": [
+          {
+            "id": "AWD-DEMO-001",
+            "status": "active",
+            "date": "2026-03-08T10:00:00Z",
+            "value": { "amount": 11800000, "currency": "KES" }
+          }
+        ]
+      },
+      "releases": []
+    },
+    {
+      "ocid": "ocds-beisawa-demo-2026-0002",
+      "id": "record-demo-0002",
+      "compiledRelease": {
+        "ocid": "ocds-beisawa-demo-2026-0002",
+        "id": "release-demo-0002-01",
+        "date": "2026-04-02T11:15:00Z",
+        "tag": ["compiled"],
+        "initiationType": "tender",
+        "tender": {
+          "id": "TND-DEMO-002",
+          "title": "Synthetic classroom desks and chairs",
+          "description": "Invented example with a recorded open competition.",
+          "status": "complete",
+          "procurementMethod": "open",
+          "numberOfTenderers": 4,
+          "value": { "amount": 7500000, "currency": "KES" }
+        },
+        "awards": [
+          {
+            "id": "AWD-DEMO-002",
+            "status": "active",
+            "date": "2026-03-29T08:00:00Z",
+            "value": { "amount": 7200000, "currency": "KES" }
+          }
+        ]
+      },
+      "releases": []
+    },
+    {
+      "ocid": "ocds-beisawa-demo-2026-0003",
+      "id": "record-demo-0003",
+      "compiledRelease": {
+        "ocid": "ocds-beisawa-demo-2026-0003",
+        "id": "release-demo-0003-01",
+        "date": "2026-04-18T13:45:00Z",
+        "tag": ["compiled"],
+        "initiationType": "tender",
+        "tender": {
+          "id": "TND-DEMO-003",
+          "title": "Synthetic road maintenance materials",
+          "description": "Invented incomplete record used to exercise missing-data handling.",
+          "status": "complete",
+          "procurementMethod": "open"
+        },
+        "awards": [
+          {
+            "id": "AWD-DEMO-003",
+            "status": "active"
+          }
+        ]
+      },
+      "releases": []
+    },
+    {
+      "ocid": "ocds-beisawa-demo-2026-0004",
+      "id": "record-demo-0004",
+      "compiledRelease": {
+        "ocid": "ocds-beisawa-demo-2026-0004",
+        "id": "release-demo-0004-01",
+        "date": "2026-05-05T07:20:00Z",
+        "tag": ["compiled"],
+        "initiationType": "tender",
+        "tender": {
+          "id": "TND-DEMO-004",
+          "title": "Synthetic water-pump spare parts",
+          "description": "Invented example with one recorded tenderer and a lower award value.",
+          "status": "complete",
+          "procurementMethod": "open",
+          "numberOfTenderers": 2,
+          "value": { "amount": 2400000, "currency": "KES" }
+        },
+        "awards": [
+          {
+            "id": "AWD-DEMO-004",
+            "status": "active",
+            "value": { "amount": 2350000, "currency": "KES" }
+          }
+        ]
+      },
+      "releases": []
+    }
+  ]
+}

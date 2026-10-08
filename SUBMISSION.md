@@ -1,0 +1,13 @@
+# Draft challenge summary
+
+> **Owner review required.** The 300-word text below is a draft, not a verified submission. It does not claim institutional adoption, real-data evaluation, authenticated approval, Qwen execution, or deployment. Confirm the challenge name, track, cutoff time/timezone, licence, data source, and owner details before publication.
+
+## Submission text (300 words)
+
+BeiSawa, Swahili for “fair price,” is a governance-track prototype for evidence-led review of public procurement records. It explores how a human reviewer might identify records that deserve closer value-for-money scrutiny without turning automated signals into allegations or procurement decisions.
+
+A reviewer selects an OCDS-shaped record in a web desk. The API asks BeiSawa’s own Model Context Protocol (MCP) server to retrieve and analyze that record, while a connected filesystem MCP server reads a review playbook. A fixed LangGraph workflow runs deterministic checks and prepares a review note. The checks compare one award with its tender estimate when the recorded currencies match, and flag a tenderer count below three. These are prompts for verification, not legal thresholds. Each finding carries source identifiers and JSON Pointer citations; missing inputs become limitations, not low-confidence claims. Dataset context, OCID, and OCDS record id together form the internal record key.
+
+The packaged dataset contains four invented demonstration records. They are not historical procurement data and support no real-world finding. A draft writer re-resolves citations and recomputes the deterministic analysis before saving a local review memo. The prototype has no award, rejection, cancellation, publication, or government-submission action. It also has no authenticated approver, immutable filed-report store, institutional integration, or evaluator account.
+
+The Qwen 2.5 adapter is configured for local Ollama inference, but Qwen has not been run in this environment. Automated tests use a labelled test stub and do not measure model quality. The workflow is fixed rather than autonomously planning or selecting tools. Before any efficacy claim, the project needs an eligible, licensed historical dataset with item quantities, specifications, prices, release history, and linked budget context, followed by practitioner-defined, held-out evaluation. Hosting, identity, hardware, and video publishing remain owner decisions. This prototype demonstrates a cautious evidence-handling design, not a validated procurement product or institutional deployment.
