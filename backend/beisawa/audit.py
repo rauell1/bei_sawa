@@ -97,6 +97,21 @@ class AuditLogger:
                         events.append(item)
         return list(reversed(events))
 
+    def for_request(self, request_id: str) -> list[dict[str, Any]]:
+        """Read only this server-generated request's trace for private persistence."""
+        if not self.path.exists():
+            return []
+        events = []
+        with self._lock, self.path.open("r", encoding="utf-8") as stream:
+            for line in stream:
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(item, dict) and item.get("request_id") == request_id:
+                    events.append(item)
+        return events
+
 
 def get_audit_logger() -> AuditLogger:
     # One module-level logger per process keeps concurrent appends serialized.

@@ -47,3 +47,8 @@ export async function getAudit(): Promise<AuditEvent[]> {
   );
   return result.events;
 }
+
+export async function getDrafts(): Promise<DraftReceipt[]> {
+  const result = await readJson<{ items: DraftReceipt[] }>(await fetch("/api/v1/drafts", { cache: "no-store" }));
+  return result.items;
+}

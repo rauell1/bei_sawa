@@ -19,6 +19,7 @@ export BEISAWA_RUNTIME_DIR="${BEISAWA_RUNTIME_DIR:-$ROOT/var}"
 export MCP_FILESYSTEM_COMMAND="$ROOT/node_modules/.bin/mcp-server-filesystem"
 export API_PORT="${API_PORT:-8000}"
 export WEB_PORT="${WEB_PORT:-3000}"
+export BEISAWA_DEPLOYMENT_MODE="local"
 
 "$ROOT/.venv/bin/uvicorn" beisawa.main:app --host 0.0.0.0 --port "$API_PORT" &
 API_PID=$!

@@ -2,7 +2,7 @@
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
-> **Status: not submission-ready.** The current app is a local prototype over four invented OCDS-shaped fixtures. It has no historical public procurement ingestion, authenticated reviewer, named approval, report-filing workflow, deployed evaluator demo, or recorded competition video. The Qwen/Ollama adapter is implemented, but no real Qwen task has been run in this environment. See [`docs/requirements.md`](docs/requirements.md) for the status of each requirement.
+> **Status: not submission-ready.** The app uses four invented OCDS-shaped fixtures. Neon reviewer authentication, private draft storage, and database persistence are implemented, but live Neon/Vercel deployment has not been validated. There is no historical public procurement ingestion, named approval, report-filing workflow, deployed evaluator demo, or recorded competition video. The Qwen/Ollama adapter is implemented, but no real Qwen task has been run in this environment. See [`docs/deployment.md`](docs/deployment.md) for deployment requirements and remaining live checks.
 
 > **Synthetic data notice:** The bundled records are invented for demonstration. Nothing in this repository is a claim about a real tender, supplier, or person. “No automated signal” is not assurance of value or compliance.
 
@@ -40,6 +40,22 @@ npm run build --prefix frontend
 ```
 
 These checks cover the current prototype only. They do not establish production security, Qwen task quality, deployment readiness, or challenge eligibility.
+
+## Neon and Vercel deployment
+
+The production architecture uses Next.js on Vercel, Neon Managed Auth, a Neon
+Function API, Neon Postgres for reviewer records/activity, and private Neon Object
+Storage for saved drafts. The Python/MCP review engine runs as a separate service
+and independently verifies Neon JWTs. The planned web domain is
+`https://beisawa.rauell.systems`. See [deployment instructions](docs/deployment.md)
+for the exact environment variables, migration, and live validation checklist.
+
+```bash
+npm run typecheck:neon
+npm run test:neon
+```
+
+These local integration checks are not evidence of a successful remote deployment.
 
 ## BeiSawa materials
 

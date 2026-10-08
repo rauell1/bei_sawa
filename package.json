@@ -1,8 +1,27 @@
 {
   "name": "bei-sawa-supporting-mcp",
   "private": true,
+  "type": "module",
   "description": "Pinned community filesystem MCP server used by BeiSawa",
+  "scripts": {
+    "test:neon": "tsx --test neon/tests/*.test.ts",
+    "typecheck:neon": "tsc -p tsconfig.neon.json",
+    "db:migrate": "node --env-file-if-exists=.env.local --env-file-if-exists=.env --import tsx neon/migrate.ts"
+  },
   "dependencies": {
-    "@modelcontextprotocol/server-filesystem": "2026.8.31"
+    "@aws-sdk/client-s3": "^3.1148.0",
+    "@modelcontextprotocol/server-filesystem": "2026.8.31",
+    "@neon/config": "^1.8.6",
+    "@neon/env": "^1.5.3",
+    "@neon/functions": "^0.11.0",
+    "jose": "^6.2.12",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@types/node": "^26.6.4",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
