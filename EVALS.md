@@ -70,3 +70,11 @@ production build and Neon TypeScript checks pass. These checks use test officer
 identities, embedded Postgres and mock storage/engine; production officer setup
 and real Neon approval/filing are not verified. Sandboxed MCP testing initially
 hung; the same original suite passed with required subprocess IPC access.
+
+## Bounded tool loop — 9 October 2026
+
+Three new tests use explicit fake planner choices: tools are dynamically discovered,
+arguments remain scoped, incomplete evidence causes a second retrieval then
+abstention without drafting, and repeated choices stop at the eight-choice budget.
+They passed with async IPC available. They are control-flow tests, not evidence
+that Qwen chose tools or produced a useful review.

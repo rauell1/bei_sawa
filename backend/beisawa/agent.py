@@ -52,6 +52,9 @@ async def run_review(
     request_id = request_id or str(uuid4())
     settings = get_settings()
     async with _gateway_scope(gateway, request_id=request_id, settings=settings) as gateway:
+        if settings.llm_mode == "ollama":
+            from beisawa.agent_loop import run_tool_loop
+            return await run_tool_loop(record_key, gateway=gateway, settings=settings, request_id=request_id)
         async def retrieve(state: ReviewState) -> dict[str, Any]:
             source_record = await gateway.call(
                 "bei_sawa",
