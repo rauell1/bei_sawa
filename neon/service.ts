@@ -15,6 +15,7 @@ export interface ObjectStore {
 }
 export interface Services {
   authenticate(request: Request): Promise<string>;
+  approverName?(owner: string): string | undefined;
   db: Database;
   objects: ObjectStore;
   engine(path: string, init?: RequestInit, authorization?: string): Promise<Response>;
@@ -24,6 +25,12 @@ export class HttpError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 class CommitOutcomeUnknown extends Error {}
+export function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonicalJson((value as Json)[key])}`).join(",")}}`;
+}
+export const contentHash = (value: unknown) => createHash("sha256").update(canonicalJson(value)).digest("hex");
 const json = (body: unknown, status = 200) => Response.json(body, {
   status, headers: { "Cache-Control": "no-store" },
 });
@@ -127,13 +134,16 @@ export function createApi(services: Services) {
         if (typeof result.draft_id !== "string" || !/^draft-[a-f0-9]{32}$/.test(result.draft_id) || result.record_key !== data.report.record_key || result.external_action_taken !== false) throw new HttpError(502, "Engine returned an inconsistent draft");
         const key = `drafts/${createHash("sha256").update(owner).digest("hex")}/${result.draft_id}.json`;
         const { audit_events: _audit, ...draftReceipt } = result;
-        const receipt = { ...draftReceipt, path: `/api/v1/drafts/${result.draft_id}`,
+        const hash = contentHash(data.report);
+        const checkpoint = await engineJson(services, request, "/internal/approval/prepare", { draft_id: result.draft_id, content_hash: hash });
+        if (checkpoint.interrupt?.content_hash !== hash || checkpoint.interrupt?.draft_id !== result.draft_id) throw new HttpError(502, "Approval interrupt does not match draft");
+        const receipt = { ...draftReceipt, content_hash: hash, path: `/api/v1/drafts/${result.draft_id}`,
           storage: "neon", message: "Saved privately for your human review. No approval or filing action was taken." };
         await services.objects.put(key, JSON.stringify({ ...receipt, report: data.report, decision: null, human_approver: null }));
         try {
           await transaction(services.db, async client => {
-            await client.query("INSERT INTO beisawa_drafts (draft_id, owner_id, record_key, object_key, receipt) VALUES ($1, $2, $3, $4, $5::jsonb)",
-              [result.draft_id, owner, result.record_key, key, JSON.stringify(receipt)]);
+            await client.query("INSERT INTO beisawa_drafts (draft_id, owner_id, record_key, object_key, receipt, content_hash, snapshot, gate_checkpoint) VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7::jsonb, $8::jsonb)",
+              [result.draft_id, owner, result.record_key, key, JSON.stringify(receipt), hash, JSON.stringify(data.report), JSON.stringify(checkpoint)]);
             await writeEvent(client, owner, event("save_draft", { record_key: result.record_key }, { draft_id: result.draft_id }));
             await writeEngineEvents(client, owner, result);
           });
@@ -157,6 +167,58 @@ export function createApi(services: Services) {
         return new Response(await services.objects.get(rows[0].object_key), { headers: {
           "Content-Type": "application/json", "Content-Disposition": `attachment; filename="${id}.json"`, "Cache-Control": "no-store",
         } });
+      }
+      if (path === "/api/v1/approval-policy" && request.method === "GET") {
+        const name = services.approverName?.(owner);
+        return json({ can_approve: Boolean(name), approver_name: name || null });
+      }
+      const gate = path.match(/^\/api\/v1\/drafts\/(draft-[a-f0-9]{32})\/(decision|file|status)$/);
+      if (gate) {
+        const id = gate[1], action = gate[2];
+        if (action === "status" && request.method === "GET") {
+          const { rows } = await services.db.query("SELECT d.content_hash, a.approver_name, a.decision, f.report_id FROM beisawa_drafts d LEFT JOIN beisawa_approvals a USING (draft_id) LEFT JOIN beisawa_filed_reports f USING (draft_id) WHERE d.draft_id=$1 AND d.owner_id=$2", [id, owner]);
+          if (!rows[0]) throw new HttpError(404, "Draft not found");
+          return json(rows[0]);
+        }
+        if (request.method !== "POST" || action === "status") throw new HttpError(405, "Method not allowed");
+        const name = services.approverName?.(owner);
+        if (!name) throw new HttpError(403, "Your account is not a configured approval officer");
+        const data = await body(request);
+        const allowedKeys = action === "decision" ? ["content_hash", "decision"] : ["content_hash"];
+        if (Object.keys(data).some(key => !allowedKeys.includes(key)) || !/^[a-f0-9]{64}$/.test(data.content_hash || "") ||
+          (action === "decision" && !["approve", "reject"].includes(data.decision))) throw new HttpError(422, "An exact draft hash and valid decision are required");
+        let result: Json = {};
+        await transaction(services.db, async client => {
+          // Serialize decisions and filing, including retries after ambiguous commits.
+          const { rows } = await client.query("SELECT * FROM beisawa_drafts WHERE draft_id=$1 AND owner_id=$2 FOR UPDATE", [id, owner]);
+          const draft = rows[0];
+          if (!draft) throw new HttpError(404, "Draft not found");
+          if (!draft.gate_checkpoint || !draft.content_hash || !draft.snapshot || contentHash(draft.snapshot) !== draft.content_hash) throw new HttpError(409, "Draft needs to be saved again before approval");
+          if (data.content_hash !== draft.content_hash) throw new HttpError(409, "Draft content hash does not match");
+          const approval = (await client.query("SELECT * FROM beisawa_approvals WHERE draft_id=$1", [id])).rows[0];
+          if (action === "decision") {
+            if (approval) {
+              if (approval.decision !== data.decision || approval.approver_id !== owner || approval.content_hash !== draft.content_hash) throw new HttpError(409, "This revision already has an immutable decision");
+              result = approval;
+              return;
+            }
+            result = (await client.query("INSERT INTO beisawa_approvals (draft_id, owner_id, content_hash, approver_id, approver_name, decision) VALUES ($1,$2,$3,$2,$4,$5) RETURNING *", [id, owner, draft.content_hash, name, data.decision])).rows[0];
+            await writeEvent(client, owner, event("human_decision", { draft_id: id, content_hash: draft.content_hash }, { decision: data.decision, approver_id: owner, approver_name: name }));
+          } else {
+            if (!approval || approval.decision !== "approve" || approval.content_hash !== draft.content_hash || approval.owner_id !== owner) throw new HttpError(409, "Filing requires matching human approval");
+            const existing = (await client.query("SELECT * FROM beisawa_filed_reports WHERE draft_id=$1", [id])).rows[0];
+            if (existing) { result = existing; return; }
+            const resumed = await engineJson(services, request, "/internal/approval/resume", { checkpoint: draft.gate_checkpoint, approval });
+            if (resumed.ready_to_file !== true || resumed.draft_id !== id || resumed.content_hash !== draft.content_hash) throw new HttpError(409, "Human approval workflow did not authorize filing");
+            result = (await client.query("INSERT INTO beisawa_filed_reports (report_id, draft_id, owner_id, content_hash, snapshot, approval) VALUES ($1,$2,$3,$4,$5::jsonb,$6::jsonb) RETURNING *", [randomUUID(), id, owner, draft.content_hash, JSON.stringify(draft.snapshot), JSON.stringify(approval)])).rows[0];
+            await writeEvent(client, owner, event("file_report", { draft_id: id, content_hash: draft.content_hash }, { report_id: result.report_id, approver_name: approval.approver_name }));
+          }
+        });
+        return json(result);
+      }
+      if (path === "/api/v1/filed-reports" && request.method === "GET") {
+        const { rows } = await services.db.query("SELECT * FROM beisawa_filed_reports WHERE owner_id=$1 ORDER BY created_at DESC LIMIT 100", [owner]);
+        return json({ items: rows });
       }
       if (path === "/api/v1/audit" && request.method === "GET") {
         const limit = Number(url.searchParams.get("limit") || 50);

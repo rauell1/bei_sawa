@@ -22,6 +22,12 @@ function buildServices(): Services {
   if (engineUrl.protocol !== "https:") throw new Error("BEISAWA_ENGINE_URL must use HTTPS");
   return {
     db,
+    // Operator-maintained subject -> officer name registry; never read from requests.
+    approverName(owner) {
+      const officers = JSON.parse(process.env.BEISAWA_APPROVERS || "{}");
+      const name = Object.hasOwn(officers, owner) ? officers[owner] : undefined;
+      return typeof name === "string" && name.trim() && name.length <= 200 ? name.trim() : undefined;
+    },
     authenticate: authenticateWith(jwks, issuer),
     objects: {
       async put(key, body) { await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: "application/json", CacheControl: "private, no-store" })); },

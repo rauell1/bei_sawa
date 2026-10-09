@@ -42,3 +42,18 @@ This status sheet distinguishes implemented prototype behavior from design audit
 5. Confirm personal-data interpretation, date window/timezone, hosting and authentication route, hardware/budget, final video account, and whether the demo remains Frankfurt-hosted if deployed there.
 
 Do not send passwords, API tokens, or other secrets in chat. Credentials should be entered into the relevant hosting or secret-management interface by the owner.
+
+## Update — 9 October 2026
+
+The earlier deployment and persistence entries above are stale. The owner
+successfully deployed the Python engine on Render, the Neon Function and private
+bucket, and ran schema migration. The custom domain renders the hosted login.
+Authenticated end-to-end evaluator access is still not verified.
+
+The new approval implementation provides named officer authorization, immutable
+canonical draft hashes, a persisted LangGraph human interrupt, approve/reject,
+and idempotent internal report filing in Neon. See `docs/approval.md` and EVALS
+for test evidence and deployment steps. Production approval remains disabled
+until the actual officer's Neon subject/name registry is configured. There is no
+separate institutional filing role, real Qwen evidence, historical energy data,
+or video yet. Keep the not-submission-ready status.

@@ -13,6 +13,7 @@ export default defineConfig({
       source: "./neon/api.ts",
       env: {
         BEISAWA_ENGINE_URL: process.env.BEISAWA_ENGINE_URL!,
+        BEISAWA_APPROVERS: process.env.BEISAWA_APPROVERS || "{}",
       },
     },
   },

@@ -58,3 +58,15 @@ The current sandbox has neither `ollama` nor `docker` installed. **No Qwen 2.5 i
   real Neon database/S3 calls, Function deployment, Vercel domain/DNS, or Qwen
   inference. Neon credentials and a deployed Python engine URL are still needed.
   These local results do not satisfy the live verification required before merge.
+
+## Approval gate verification — 9 October 2026
+
+Local checks: original Python suite 33 passed with subprocess IPC available;
+new LangGraph checkpoint test passes after JSON export/import and rejects wrong
+owner/hash, unnamed approver, and rejection. Neon suite: 13 tests passed, including
+missing approval, forged identity fields, wrong revision, rejection, cross-owner
+access, handler restart, tampered snapshot, and idempotent filing. Frontend
+production build and Neon TypeScript checks pass. These checks use test officer
+identities, embedded Postgres and mock storage/engine; production officer setup
+and real Neon approval/filing are not verified. Sandboxed MCP testing initially
+hung; the same original suite passed with required subprocess IPC access.

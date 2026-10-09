@@ -13,6 +13,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.responses import JSONResponse
 
+from beisawa.approval import prepare_gate, resume_gate
 from beisawa.agent import run_review
 from beisawa.audit import get_audit_logger
 from beisawa.config import get_settings
@@ -234,3 +235,30 @@ async def save_draft(payload: DraftRequest, request: Request) -> dict[str, Any]:
 async def audit_events(limit: int = Query(default=50, ge=1, le=200)) -> dict[str, Any]:
     events = get_audit_logger().recent(limit)
     return {"events": events, "count": len(events), "log_format": "JSON Lines; append-only local audit trail"}
+
+
+class GateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    draft_id: str = Field(pattern=r"^draft-[a-f0-9]{32}$")
+    content_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class GateResumeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    checkpoint: dict[str, Any]
+    approval: dict[str, Any]
+
+
+@app.post("/internal/approval/prepare")
+def prepare_approval(payload: GateRequest, request: Request):
+    return prepare_gate(payload.draft_id, payload.content_hash, getattr(request.state, "reviewer_id", "local-preview"))
+
+
+@app.post("/internal/approval/resume")
+def resume_approval(payload: GateResumeRequest, request: Request):
+    # This returns graph state only: it cannot approve or file database reports.
+    # The Neon API supplies its persisted approval after independently checking it.
+    try:
+        return resume_gate(payload.checkpoint, payload.approval, getattr(request.state, "reviewer_id", "local-preview"))
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=422, detail="Approval checkpoint does not match") from exc

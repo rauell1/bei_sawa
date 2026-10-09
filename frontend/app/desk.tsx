@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ApprovalPanel } from "./approval-panel";
 import { authClient } from "@/lib/auth/client";
 import { getDrafts } from "@/lib/api";
 import {
@@ -275,7 +276,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
         </a>
         <div className="sidebar-bottom">
           <div className="side-safety-icon"><Icon name="shield" size={18} /></div>
-          <div><strong>Human review required</strong><small>Draft only; no approval or filing</small></div>
+          <div><strong>Human review required</strong><small>Human approval before internal filing</small></div>
         </div>
       </aside>
 
@@ -317,7 +318,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
             <div className="metric-card"><div className="metric-top"><span>DEMO RECORDS</span><span className="metric-icon mint"><Icon name="file" size={16} /></span></div><strong>{loading ? "—" : String(tenders.length).padStart(2, "0")}</strong><small>OCDS-shaped · invented data</small></div>
             <div className="metric-card"><div className="metric-top"><span>REVIEW SIGNALS</span><span className="metric-icon amber"><Icon name="search" size={16} /></span></div><strong>{String(surfacedFlags).padStart(2, "0")}</strong><small>{review ? "In the current review" : "Run a review to surface checks"}</small></div>
             <div className="metric-card"><div className="metric-top"><span>TOOL CALLS LOGGED</span><span className="metric-icon blue"><Icon name="clock" size={16} /></span></div><strong>{String(completedCalls).padStart(2, "0")}</strong><small>Inputs · outputs · timestamps</small></div>
-            <div className="metric-card policy-metric"><div className="metric-top"><span>APPROVAL / FILING</span><span className="metric-icon outline"><Icon name="shield" size={16} /></span></div><strong>Not configured</strong><small>No authenticated approval or filing path</small></div>
+            <div className="metric-card policy-metric"><div className="metric-top"><span>APPROVAL / FILING</span><span className="metric-icon outline"><Icon name="shield" size={16} /></span></div><strong>Human gate</strong><small>Named officer · exact revision · private filing</small></div>
           </section>
 
           <section className="workspace-section" id="review">
@@ -406,7 +407,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
                     {review.report.limitations.length > 0 && <div className="limitations"><strong>Data limitations</strong>{review.report.limitations.map((item) => <p key={item}><span>!</span>{item}</p>)}</div>}
                     <div className="report-disclaimer"><Icon name="shield" size={14} /> {review.report.disclaimer}</div>
                     <div className="report-actions">
-                      <button className="button button-dark save-draft" onClick={createDraftMemo} disabled={savingDraft}>{savingDraft ? <><span className="spinner" /> Saving draft…</> : <>Save a local review draft <Icon name="download" size={16} /></>}</button>
+                      <button className="button button-dark save-draft" onClick={createDraftMemo} disabled={savingDraft}>{savingDraft ? <><span className="spinner" /> Saving draft…</> : <>Save a private review draft <Icon name="download" size={16} /></>}</button>
                       <span className="draft-only-note">Nothing is submitted or published.</span>
                     </div>
                     {draft && <div className="draft-receipt"><span className="receipt-check"><Icon name="check" size={15} /></span><div><strong>Draft saved for human review</strong><small>{draft.draft_id} · no approval or filing action taken</small>{!localPreview && <a href={draft.path}>Download draft</a>}</div></div>}
@@ -422,6 +423,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
             {draftsError && <p role="alert">{draftsError}</p>}
             {!draftsError && !savedDrafts.length && <p>Your drafts will appear here after you save a review.</p>}
             <ul className="saved-drafts">{savedDrafts.map(item => <li key={item.draft_id}><a href={item.path}>{item.draft_id}</a><span>{item.ocid} · {formatTime(item.created_at)}</span></li>)}</ul>
+            <ApprovalPanel drafts={savedDrafts} />
           </section>}
           <section className="audit-section" id="audit">
             <div className="section-heading audit-heading"><div><div className="section-kicker">02 / ACCOUNTABILITY</div><h2>{localPreview ? "A trace for every tool call" : "Your review activity"}</h2></div><div className="audit-count"><span className="live-dot" /> {audit.length} RECENT EVENTS</div></div>
