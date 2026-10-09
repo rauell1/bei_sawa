@@ -1,6 +1,8 @@
 # Evaluation plan and observed prototype results
 
-**As of 2026-10-08.** BeiSawa is a procurement-record triage prototype, not an award recommendation or compliance system. Every bundled record is invented and labelled synthetic. The scenarios below define checks for the current fixtures; passing them is not evidence that the app performs well on public or real procurement data.
+**Latest verification: 9 October 2026.** 40 Python tests and 13 Neon API tests pass; the frontend production build and Neon TypeScript checks pass. Compose images build. The CPU-only Ollama service starts, but no real inference completed: the official Qwen blob redirect is denied by the managed proxy (HTTP 403). A real-run recording, historical data evaluation and production approval/evaluator demo remain pending. Earlier fixture results are preserved below.
+
+**Initial fixture baseline, 8 October 2026.** BeiSawa is a procurement-record triage prototype, not an award recommendation or compliance system. Every bundled record is invented and labelled synthetic. The scenarios below define checks for the current fixtures; passing them is not evidence that the app performs well on public or real procurement data.
 
 ## Ten intended review scenarios
 
@@ -14,12 +16,12 @@
 | 6 | Remove citations, alter another record's OCID, release id, or finding text. | Reject; do not save a mismatched report. | **Automated draft-validation tests pass** for these cases. |
 | 7 | Inspect own MCP tool list and call both MCP servers. | Search, scoped retrieval, analysis and local draft tools exist; borrowed server performs a concrete read; tool activity is logged. | **MCP stdio integration test passes.** Current JSONL log is local application logging, not tamper-proof. |
 | 8 | Ollama/Qwen unavailable. | Health and review make unavailability explicit; never call stub output Qwen. | **Review failure path and stub labelling are tested.** Current API health does not establish that a real Qwen model is installed. |
-| 9 | Save a valid review memo. | New local draft is marked for human review; citations retained; decision and approver remain empty; no external action. | **Automated draft test passes.** No human approval or filing exists. |
+| 9 | Save a valid review memo. | New local draft is marked for human review; citations retained; decision and approver remain empty; no external action. | **Automated draft test passes.** New human approval/filing controls have separate tests below. |
 | 10 | Put prompt-like instructions in a synthetic OCDS description. | Untrusted record content cannot change the system prompt or enable prohibited actions. | **Prompt isolation test passes** for the tested description field; this is not a comprehensive prompt-injection evaluation. |
 
 Additional tests cover dataset-scoped keys, duplicate references, source-id search, record-key API requests, source citation identity, multiple-award/zero-estimate abstention, MCP child-environment allowlisting, and reuse of app-lifetime MCP sessions across requests.
 
-## Checks actually run on this working tree
+## Historical checks — 8 October 2026
 
 - `.venv/bin/pytest -q`: **28 passed**. Includes fixture/unit tests, a real stdio MCP client/server integration test, and an API review request using the explicitly configured test stub. No real-data or Qwen task is run by this suite.
 - `npm run build --prefix frontend`: **passed** for the current Next.js compilation and TypeScript. Next.js rewrites `frontend/next-env.d.ts` during builds in this checkout; that generated change was restored. Rerun from a clean checkout before release.
@@ -27,14 +29,14 @@ Additional tests cover dataset-scoped keys, duplicate references, source-id sear
 
 ## Observed blocker and next evaluation step
 
-The current sandbox has neither `ollama` nor `docker` installed. **No Qwen 2.5 inference, first-run model pull, resource measurement, or quality result has been observed.** This is an execution blocker, not evidence that Qwen succeeds or fails. Next, run the Compose or native Ollama path on owner-approved hardware; record exact model tag/digest, configuration, resource use, output validation, and results for all ten cases. Do not substitute stub outputs in that report.
+Docker and Ollama are now available. The full official Ollama image passed checksum verification but its writable layer exhausted this environment's VFS disk. A CPU-only image built from the verified upstream digest starts successfully after task-cache cleanup. The model manifest is accessible, but the 1.93 GB Qwen weights redirect to `dd20bb891979d25aebc8bec07b2b3bbc.r2.cloudflarestorage.com`; download through the managed HTTPS proxy returns 403. Registry and R2 access requirements were saved for environment review. **No Qwen inference or quality result has been observed.** Do not treat this as a model-quality failure or substitute stub outputs. After access is applied, run the actual script, capture tag/digest/timings and publish only that genuine run.
 
 ## Required evaluation before submission or deployment
 
 1. Obtain an eligible, documented and licensed historical dataset with dataset/publisher identity, OCIDs, record/release amendments, line-item quantities/specifications/prices and linked budget context. Keep source snapshots and transformation lineage; do not claim efficacy from synthetic fixtures.
 2. Define expected results with procurement practitioners and use a held-out set; report abstentions, false positives/negatives, citation validity, and model review-note issues. Do not describe a small fixture suite as accuracy or savings.
 3. Execute repeated end-to-end Qwen 2.5 runs under a pinned model digest, assess determinism/latency/resource consumption, test unavailable/malformed-model behavior, and inspect prompts, outputs and MCP traces.
-4. Test authenticated named approval against the exact immutable review revision/hash, replay/tampering behavior, and least-privilege worker/filing roles after those controls exist. The present prototype has none of them.
+4. Test authenticated named approval against the exact immutable review revision/hash, replay/tampering behavior, and least-privilege worker/filing roles in production. Named officer authorization, hash binding and idempotent filing are implemented and locally tested; separate database worker/filing roles remain absent.
 5. Verify clean container builds, empty-volume recovery, hosting region, authentication, retention and evaluator access before making deployment claims.
 6. Record a real, unaltered demo video only after the chosen data and account permissions are approved; clearly label synthetic content when used.
 
@@ -83,3 +85,20 @@ The historical importer test uses invented input and verifies record preservatio
 closed-status filtering, and refusal of future awards. It is not historical-data
 evaluation. A canonical draft test also refuses added approval flags and abstention
 markers. Final Python regression suite now includes these tests.
+
+
+## Final Compose wiring check — 9 October 2026
+
+CPU-only Ollama, Python API and Next.js web started in the managed daemon. The
+web desk returned HTTP 200; web-proxied tender search returned 200 and all four
+synthetic records. Health reported Ollama mode with no available model; review
+returned 503 rather than a disguised stub. This exercised the actual Docker
+web/engine/MCP path, **not inference, Neon approval or evaluator access**. Optional
+managed-proxy CA mounts preserved TLS verification. The ordinary full Ollama image
+was downloaded and verified but exceeded the VFS disk during writable-layer
+creation; task-owned obsolete cache/container data was reclaimed. The CPU image
+uses unchanged CPU binaries/libraries and licences from upstream AMD64 digest
+`sha256:31650ae0d08bde9c8bbd845d27f2da31acddf6ff735523869d8e5ee7a9969b03`.
+
+The final Python suite is **40 passed**, Neon suite **13 passed**. No Qwen timing,
+quality metric, digest-of-installed-model or recorded run is claimed.

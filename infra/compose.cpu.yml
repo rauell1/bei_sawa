@@ -1,0 +1,8 @@
+services:
+  ollama:
+    image: beisawa-ollama-cpu:local
+    build:
+      context: .
+      dockerfile: infra/ollama-cpu.Dockerfile
+  qwen-model:
+    image: beisawa-ollama-cpu:local

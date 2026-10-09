@@ -182,3 +182,25 @@ accessible Ollama instance configured with `OLLAMA_BASE_URL`/`OLLAMA_MODEL`, eno
 memory/CPU, and measured review latency within the Function/proxy limits. Do not
 claim hosted Qwen until an authenticated production review reports provider
 `ollama`, `used=true`, and the model digest/run evidence is recorded.
+
+For disk-limited CPU evaluation, an optional image copies the CPU binaries and
+licences from the verified official Ollama AMD64 digest:
+
+```bash
+docker compose -f docker-compose.yml -f infra/compose.cpu.yml up --build
+```
+
+This alternative has been built and its Ollama service started here. It does not
+prove inference: the Qwen weights download was blocked at the registry's R2
+redirect by the managed proxy. The default full GPU image exceeded available VFS
+writable-layer space. Neither failure was bypassed by disabling verification.
+After a complete model startup, record an actual run through Compose's internal
+web API (the API service has access to both `web` and `ollama`):
+
+```bash
+docker compose exec -T api python - < scripts/evaluate_qwen.py > docs/evidence/qwen-run.json
+```
+
+Check the command exits successfully and the artifact is complete before adding
+it to source control. It rejects stub and abstained reviews. The local stack
+cannot demonstrate production Neon approval. No public recording is shipped yet.

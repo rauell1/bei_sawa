@@ -42,11 +42,13 @@ def prepare_gate(draft_id: str, content_hash: str, owner_id: str) -> dict:
     config = {"configurable": {"thread_id": draft_id}}
     result = _graph(saver).invoke({"draft_id": draft_id, "content_hash": content_hash, "owner_id": owner_id}, config)
     saved = saver.get_tuple(config)
-    return {"checkpoint": saved.checkpoint, "metadata": saved.metadata,
+    return {"workflow_version": 1, "checkpoint": saved.checkpoint, "metadata": saved.metadata,
             "interrupt": result["__interrupt__"][0].value}
 
 
 def resume_gate(saved: dict, approval: dict, owner_id: str) -> dict:
+    if saved.get("workflow_version") != 1:
+        raise ValueError("Unsupported approval workflow revision")
     checkpoint = saved["checkpoint"]
     state = checkpoint["channel_values"]
     if state["owner_id"] != owner_id or state["content_hash"] != approval["content_hash"]:

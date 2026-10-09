@@ -4,7 +4,10 @@ services:
     volumes:
       - ollama-data:/root/.ollama
     environment:
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
       OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_NO_CLOUD: "true"
       OLLAMA_KEEP_ALIVE: 24h
     command: ["serve"]
     healthcheck:
@@ -20,6 +23,8 @@ services:
     entrypoint: ["/bin/ollama"]
     command: ["pull", "${OLLAMA_MODEL:-qwen2.5:3b}"]
     environment:
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
       OLLAMA_HOST: ollama:11434
     depends_on:
       ollama:
@@ -31,6 +36,8 @@ services:
       context: .
       dockerfile: infra/backend.Dockerfile
     environment:
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
       # Local-only stack. The public Render image keeps auth enabled.
       BEISAWA_ENGINE_REQUIRE_AUTH: "0"
       BEISAWA_LLM_MODE: ollama
@@ -64,6 +71,8 @@ services:
       context: .
       dockerfile: infra/frontend.Dockerfile
     environment:
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
       BEISAWA_DEPLOYMENT_MODE: local
       API_INTERNAL_URL: http://api:8000
       HOSTNAME: 0.0.0.0

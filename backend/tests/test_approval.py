@@ -14,3 +14,10 @@ def test_gate_interrupt_is_portable_and_only_resumes_for_matching_human():
             resume_gate(saved, bad, "officer-id")
     with pytest.raises(ValueError):
         resume_gate(saved, approval, "other-owner")
+
+
+def test_unknown_workflow_revision_cannot_be_resumed():
+    saved = prepare_gate("draft-id", "a" * 64, "officer-id")
+    saved["workflow_version"] = 2
+    with pytest.raises(ValueError, match="Unsupported"):
+        resume_gate(saved, {}, "officer-id")

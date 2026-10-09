@@ -100,7 +100,7 @@ app = FastAPI(
     version="0.1.0",
     description=(
         "A synthetic-data OCDS review prototype. It prepares cited review drafts only; "
-        "there is no authenticated approval or procurement decision action."
+        "the Neon API separately enforces human approval and internal filing. No procurement decision action exists."
     ),
     lifespan=lifespan,
 )

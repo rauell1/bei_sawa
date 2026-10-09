@@ -2,7 +2,7 @@
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
-> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The actual officer, production approval workflow, historical energy/solar data, named evaluator access, recorded real run and video are still required. Real Qwen/Compose verification is pending; see EVALS and [`docs/approval.md`](docs/approval.md).
+> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The actual officer, production approval workflow, historical energy/solar data, named evaluator access, recorded real run and video are still required. Real Qwen verification is blocked by the managed proxy; see EVALS and [`docs/approval.md`](docs/approval.md).
 
 > **Synthetic data notice:** The bundled records are invented for demonstration. Nothing in this repository is a claim about a real tender, supplier, or person. “No automated signal” is not assurance of value or compliance.
 
@@ -30,7 +30,7 @@ BEISAWA_LLM_MODE=stub ./dev.sh
 
 Open **http://localhost:3000**. This is an explicit UI/test preview; the UI labels it as not Qwen. To attempt the configured local model instead, install Ollama and pull `qwen2.5:7b`, then run `./dev.sh` without the `stub` setting. An unavailable model returns an error rather than being silently replaced.
 
-The `docker compose up --build` path is present but has **not** been executed in this environment. Do not treat it as a verified one-command Qwen setup until it passes a clean build with empty volumes on the target hardware. First-run model downloads require several gigabytes and enough memory for the model. Compose defaults to `qwen2.5:3b`; set `OLLAMA_MODEL=qwen2.5:7b` for 7B.
+The Compose frontend/backend builds pass. A CPU-only Ollama service starts, but the real Qwen pull is blocked by the managed proxy, so the one-command model workflow is **not verified**. First-run model downloads require several gigabytes and enough memory for the model. Compose defaults to `qwen2.5:3b`; set `OLLAMA_MODEL=qwen2.5:7b` for 7B.
 
 ### Checks
 

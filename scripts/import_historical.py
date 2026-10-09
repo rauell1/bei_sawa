@@ -21,6 +21,8 @@ def build_manifest(raw: bytes, *, source_url, publisher, license_url, retrieved_
     retrieved = datetime.fromisoformat(retrieved_at.replace("Z", "+00:00"))
     if retrieved.tzinfo is None:
         raise ValueError("Retrieval date requires a timezone")
+    if retrieved > datetime.now(timezone.utc):
+        raise ValueError("Retrieval date cannot be in the future")
     package = json.loads(raw)
     if not isinstance(package, dict) or not isinstance(package.get("records"), list):
         raise ValueError("An OCDS record package is required; release packages need source-specific compilation")
