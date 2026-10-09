@@ -1,6 +1,6 @@
 # Evaluation plan and observed prototype results
 
-**Latest verification: 9 October 2026.** 40 Python tests and 13 Neon API tests pass; the frontend production build and Neon TypeScript checks pass. Compose images build. The CPU-only Ollama service starts, but no real inference completed: the official Qwen blob redirect is denied by the managed proxy (HTTP 403). A real-run recording, historical data evaluation and production approval/evaluator demo remain pending. Earlier fixture results are preserved below.
+**Latest verification: 9 October 2026.** 40 Python tests and 13 Neon API tests pass; frontend production build and Neon TypeScript checks pass. A genuine Qwen 2.5 3B review completed through Compose web → Python → MCP → Ollama in **98.554 seconds**, followed by a 0.018-second draft save. The [complete recorded run](frontend/public/evidence/qwen-2026-10-09.json) includes model digest, source, citations, tool choices and request-scoped audit. `/demo` displays this synthetic run without login. Historical-data evaluation, hosted Qwen and production approval/evaluator access remain pending. Earlier results below are historical, not the current inference status.
 
 **Initial fixture baseline, 8 October 2026.** BeiSawa is a procurement-record triage prototype, not an award recommendation or compliance system. Every bundled record is invented and labelled synthetic. The scenarios below define checks for the current fixtures; passing them is not evidence that the app performs well on public or real procurement data.
 
@@ -8,7 +8,7 @@
 
 | # | Scenario | Pass criteria | Current evidence/status |
 |---|---|---|---|
-| 1 | Synthetic record `...0001`: estimate KES 10,000,000; one award KES 11,800,000; one tenderer. | Deterministic 18% estimate-variance and competition prompts; all source-backed values resolve through citations; synthetic label visible. | **Rule/citation assertions pass.** Test-stub workflow passes. No Qwen evaluation. |
+| 1 | Synthetic record `...0001`: estimate KES 10,000,000; one award KES 11,800,000; one tenderer. | Deterministic 18% estimate-variance and competition prompts; all source-backed values resolve through citations; synthetic label visible. | **Rule/citation assertions pass.** Test-stub workflow passes. One genuine Qwen run; see recorded evidence below. |
 | 2 | Synthetic record `...0002`: four tenderers, award below estimate. | No estimate-variance or competition flag. “No automated signal” is not assurance. | **Rule assertions pass.** No actual-model wording evaluated. |
 | 3 | Synthetic record `...0003`: missing values/count. | No finding; skipped checks and missing-input limitations. | **Rule assertions pass.** |
 | 4 | Synthetic record `...0004`: two tenderers, award below estimate. | Neutral competition prompt only, citing `numberOfTenderers`; no overrun allegation. | **Rule/citation assertions pass.** |
@@ -27,9 +27,14 @@ Additional tests cover dataset-scoped keys, duplicate references, source-id sear
 - `npm run build --prefix frontend`: **passed** for the current Next.js compilation and TypeScript. Next.js rewrites `frontend/next-env.d.ts` during builds in this checkout; that generated change was restored. Rerun from a clean checkout before release.
 - Fresh live preview smoke after the composite-key migration, in explicit `stub` mode and through app-lifetime MCP sessions: UI `GET /` returned 200; health identified `test_stub`; tender search returned `source_id`, `record_key`, OCID and record id, and filtering by source id returned all four fixtures; review by `record_key` returned two fixture findings with matching citation keys; local draft returned `draft_requires_human_review`; legacy bare-OCID review request returned HTTP 422. This verifies the prototype route end-to-end only, not Qwen or production behavior.
 
-## Observed blocker and next evaluation step
+## Genuine Qwen run — 9 October 2026
 
-Docker and Ollama are now available. The full official Ollama image passed checksum verification but its writable layer exhausted this environment's VFS disk. A CPU-only image built from the verified upstream digest starts successfully after task-cache cleanup. The model manifest is accessible, but the 1.93 GB Qwen weights redirect to `dd20bb891979d25aebc8bec07b2b3bbc.r2.cloudflarestorage.com`; download through the managed HTTPS proxy returns 403. Registry and R2 access requirements were saved for environment review. **No Qwen inference or quality result has been observed.** Do not treat this as a model-quality failure or substitute stub outputs. After access is applied, run the actual script, capture tag/digest/timings and publish only that genuine run.
+- Started `2026-10-09T04:57:03.637899+00:00`; x86_64, five visible CPUs; Ollama 0.40.2.
+- Tag `qwen2.5:3b`; imported model manifest digest `c1c6d19800580315abb225007edc479fa03633774bc132e5106928af89a3d070`. Official weights/template/system/licence were checksum-verified and imported with `ollama create`; this local manifest digest is not claimed to equal the registry manifest digest.
+- Qwen chose search → retrieval → deterministic analysis → draft → finish. Notes cited C2–C6, correctly described the synthetic 18% estimate variance and limited competition as review signals, and asked neutral verification questions. Some choice reasons repeated retrieval wording after retrieval; this is a visible model limitation.
+- The first attempt repeatedly searched and exhausted the eight-choice budget. A second progressed to drafting but exceeded the old web proxy timeout. State-valid tool availability, smaller planning context and bounded 240-second engine/250-second web deadlines enabled the observed pass. These are feasibility results from one selected record, not benchmark accuracy or repeatability.
+- Earlier proxy-denied weights became accessible. Direct Ollama download still failed on redirect DNS; importing the verified official GGUF worked through the configured TLS proxy. The full GPU image exceeded VFS disk; the unchanged upstream CPU binaries ran successfully.
+- Reproduce with `scripts/evaluate_qwen.py` inside the Compose API container, redirecting stdout to a JSON artifact. It rejects stub mode and abstained reviews. This run used local mode and did **not** authenticate to Neon or approve/file a production report.
 
 ## Required evaluation before submission or deployment
 
@@ -100,5 +105,8 @@ creation; task-owned obsolete cache/container data was reclaimed. The CPU image
 uses unchanged CPU binaries/libraries and licences from upstream AMD64 digest
 `sha256:31650ae0d08bde9c8bbd845d27f2da31acddf6ff735523869d8e5ee7a9969b03`.
 
-The final Python suite is **40 passed**, Neon suite **13 passed**. No Qwen timing,
-quality metric, digest-of-installed-model or recorded run is claimed.
+The final Python suite is **40 passed**, Neon suite **13 passed**. The missing-model check above preceded the genuine run recorded earlier in this document. No real-data quality metric is claimed.
+
+## Public recorded-run walkthrough
+
+`/demo` builds as a static public route with no Neon credential dependency. A real headless Chromium browser loaded it without a session and displayed the actual record, citations, model note and choices. The 35-second MP4 browses that page at 1280×900; it is labelled recorded playback, not an unaltered live-inference video or production approval demonstration. The JSON remains the complete run evidence. Production challenge-video requirements still need checking against the original rules.

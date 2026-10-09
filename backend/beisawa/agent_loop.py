@@ -40,8 +40,23 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
         context = {"record_key": record_key, "steps": state["steps"], "retrieved": "source_record" in state,
             "analyzed": "report" in state, "drafted": "draft" in state,
             "feedback": state.get("feedback", ""), "trace": state["trace"],
-            "evidence": state.get("report", {}), "search_results": state.get("search_results", {}), "source_record": state.get("source_record", {})}
-        choice = await chooser(context, tools, settings=settings, request_id=request_id)
+            "evidence": {key: state.get("report", {}).get(key) for key in ["record_key", "result_label", "checks", "limitations"]},
+            "search_results": [{key: item.get(key) for key in ["record_key", "title", "status"]} for item in state.get("search_results", {}).get("items", [])[:5]],
+            "source_record": {"retrieved": "source_record" in state, "ocid": state.get("source_record", {}).get("ocid")}}
+        # Offer state-valid actions, rather than asking a small model to infer
+        # preconditions or repeat an already completed search indefinitely.
+        available = []
+        for tool in tools:
+            name = tool["name"]
+            if name == "search_tenders" and "search_results" not in state:
+                available.append(tool)
+            elif name == "get_tender_record" and ("source_record" not in state or state.get("thin")):
+                available.append(tool)
+            elif name == "analyze_value_for_money" and "source_record" in state and ("report" not in state or state.get("thin")):
+                available.append(tool)
+            elif name == "draft_review_memo" and "report" in state and not state.get("thin") and "draft" not in state:
+                available.append(tool)
+        choice = await chooser(context, available, settings=settings, request_id=request_id)
         if choice["tool"] not in ALLOWED | {"finish", "abstain"}:
             raise ValueError("Planner selected a forbidden tool")
         return {"choice": choice}

@@ -41,7 +41,7 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
     // Do not forward user-supplied Authorization, cookies, or identity headers.
     const response = await fetch(target, { method: request.method, headers,
       body: hasBody ? await request.arrayBuffer() : undefined,
-      redirect: "error", cache: "no-store", signal: AbortSignal.timeout(130_000) });
+      redirect: "error", cache: "no-store", signal: AbortSignal.timeout(250_000) });
     const responseHeaders = new Headers({ "Content-Type": response.headers.get("Content-Type") || "application/json", "Cache-Control": "no-store" });
     const attachment = response.headers.get("Content-Disposition");
     if (attachment) responseHeaders.set("Content-Disposition", attachment);
