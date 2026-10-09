@@ -33,6 +33,8 @@ let engineCalls = 0;
 const engine: Services["engine"] = async (path, init) => {
   engineCalls++;
   const data = init?.body ? JSON.parse(String(init.body)) : {};
+  if (path === "/internal/approval/prepare") return Response.json({ interrupt: { draft_id: data.draft_id, content_hash: data.content_hash }, checkpoint: { draft_id: data.draft_id } });
+  if (path === "/internal/approval/resume") return Response.json({ ready_to_file: true, draft_id: data.checkpoint.checkpoint.draft_id, content_hash: data.approval.content_hash });
   if (path === "/api/v1/reviews") return Response.json({ review_id: `review-${++sequence}`, record_key: data.record_key, report, trace: [], model: { provider: "stub" } });
   if (path === "/api/v1/drafts") {
     if (data.report.record_key !== report.record_key || data.report.findings.length) return Response.json({ detail: "Invalid report" }, { status: 422 });
@@ -142,4 +144,44 @@ test("invalid limits and unsupported routes fail without forwarding arbitrary pa
   assert.equal((await request("audit?limit=999999")).status, 422);
   assert.equal((await request("tenders?limit=NaN")).status, 422);
   assert.equal((await request("admin/delete")).status, 404);
+});
+
+const officerApi = createApi({ db, objects: storage, authenticate, engine,
+  approverName: owner => owner === "reviewer-a" ? "Test Approval Officer" : undefined });
+async function officerRequest(path: string, data: unknown, owner = "reviewer-a") {
+  return officerApi(new Request(`https://api.example.test/api/v1/${path}`, { method: "POST",
+    headers: { Authorization: `Bearer ${await token(owner)}`, "Content-Type": "application/json" }, body: JSON.stringify(data) }));
+}
+test("filing refuses unapproved, wrong hash, spoofed identity, rejected and cross-owner drafts", async () => {
+  const draft = await (await request("drafts", { body: { report } })).json();
+  const prefix = `drafts/${draft.draft_id}`;
+  assert.equal((await officerRequest(`${prefix}/file`, { content_hash: draft.content_hash })).status, 409);
+  assert.equal((await officerRequest(`${prefix}/decision`, { content_hash: "f".repeat(64), decision: "approve" })).status, 409);
+  assert.equal((await officerRequest(`${prefix}/decision`, { content_hash: draft.content_hash, decision: "approve", approver_name: "Forged officer" })).status, 422);
+  assert.equal((await officerRequest(`${prefix}/decision`, { content_hash: draft.content_hash, decision: "approve" }, "reviewer-b")).status, 403);
+  assert.equal((await officerRequest(`${prefix}/decision`, { content_hash: draft.content_hash, decision: "reject" })).status, 200);
+  assert.equal((await officerRequest(`${prefix}/decision`, { content_hash: draft.content_hash, decision: "approve" })).status, 409);
+  assert.equal((await officerRequest(`${prefix}/file`, { content_hash: draft.content_hash })).status, 409);
+});
+test("approval and filing survive handler restart and retries create one immutable filed snapshot", async () => {
+  const draft = await (await request("drafts", { body: { report } })).json();
+  const prefix = `drafts/${draft.draft_id}`;
+  const data = { content_hash: draft.content_hash, decision: "approve" };
+  const first = await (await officerRequest(`${prefix}/decision`, data)).json();
+  assert.equal(first.approver_id, "reviewer-a");
+  assert.equal(first.approver_name, "Test Approval Officer");
+  assert.deepEqual(await (await officerRequest(`${prefix}/decision`, data)).json(), first);
+  const filed = await (await officerRequest(`${prefix}/file`, { content_hash: draft.content_hash })).json();
+  const restarted = createApi({ db, objects: storage, authenticate, engine, approverName: () => "Test Approval Officer" });
+  const retry = await restarted(new Request(`https://api.example.test/api/v1/${prefix}/file`, { method: "POST", headers: { Authorization: `Bearer ${await token()}`, "Content-Type": "application/json" }, body: JSON.stringify({ content_hash: draft.content_hash }) }));
+  assert.deepEqual(await retry.json(), filed);
+  assert.deepEqual(filed.snapshot, report);
+  assert.equal((await db.query("SELECT * FROM beisawa_filed_reports WHERE draft_id=$1", [draft.draft_id])).rows.length, 1);
+  assert.equal((await request("filed-reports", { owner: "reviewer-b" })).status, 200);
+  assert.deepEqual((await (await request("filed-reports", { owner: "reviewer-b" })).json()).items, []);
+});
+test("tampering with a stored snapshot prevents approval", async () => {
+  const draft = await (await request("drafts", { body: { report } })).json();
+  await db.query("UPDATE beisawa_drafts SET snapshot=$1::jsonb WHERE draft_id=$2", [JSON.stringify({ ...report, findings: ["tampered"] }), draft.draft_id]);
+  assert.equal((await officerRequest(`drafts/${draft.draft_id}/decision`, { content_hash: draft.content_hash, decision: "approve" })).status, 409);
 });

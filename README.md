@@ -2,14 +2,14 @@
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
-> **Status: not submission-ready.** The app uses four invented OCDS-shaped fixtures. Neon reviewer authentication, private draft storage, and database persistence are implemented, but live Neon/Vercel deployment has not been validated. There is no historical public procurement ingestion, named approval, report-filing workflow, deployed evaluator demo, or recorded competition video. The Qwen/Ollama adapter is implemented, but no real Qwen task has been run in this environment. See [`docs/deployment.md`](docs/deployment.md) for deployment requirements and remaining live checks.
+> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The actual officer, production approval workflow, historical energy/solar data, named evaluator access, recorded real run and video are still required. Real Qwen verification is blocked by the managed proxy; see EVALS and [`docs/approval.md`](docs/approval.md).
 
 > **Synthetic data notice:** The bundled records are invented for demonstration. Nothing in this repository is a claim about a real tender, supplier, or person. “No automated signal” is not assurance of value or compliance.
 
 ## What currently runs
 
 - A Next.js procurement review desk with a direct link to the BeiSawa Drive materials folder.
-- A FastAPI API and LangGraph `retrieve → analyze → reflect` workflow.
+- A FastAPI API and bounded LangGraph plan → execute → self-check loop in Ollama mode; explicit test mode retains the fixed fixture workflow.
 - BeiSawa's own stdio MCP server with four tools: search, record retrieval, deterministic checks, and local draft writing.
 - One MCP gateway with persistent stdio sessions for the lifetime of the API process; MCP child environments receive only an allowlisted set of variables.
 - The upstream `@modelcontextprotocol/server-filesystem` MCP server, called through `read_text_file` to load the local review playbook. The server process itself is not an OS-enforced read-only sandbox.
@@ -18,7 +18,7 @@
 - JSON Pointer citations on findings and a draft writer that re-resolves citations and recomputes the source analysis before saving.
 - A local JSONL log for completed MCP calls and model calls. MCP outputs can include full source records; do not use personal/sensitive data until redaction and access controls exist. This is not tamper-proof or a durable business audit system.
 
-The current LangGraph is a fixed three-step workflow. Qwen writes constrained notes after the deterministic analysis; it does **not** choose tools or re-plan from observations. The test stub is labelled and is not an open-weights model run.
+In Ollama mode Qwen selects a next tool from the discovered MCP tools. The server fixes record-scoped arguments and permits no approval/filing tool. Eight choices maximum; incomplete checks trigger retrieval retry then abstention. The final note is citation-validated. Stub mode retains deterministic fixture behavior and is not an open-weights model run. Named approval and filing are separate authenticated actions; see `docs/approval.md`.
 
 ## Run a local preview
 
@@ -30,7 +30,7 @@ BEISAWA_LLM_MODE=stub ./dev.sh
 
 Open **http://localhost:3000**. This is an explicit UI/test preview; the UI labels it as not Qwen. To attempt the configured local model instead, install Ollama and pull `qwen2.5:7b`, then run `./dev.sh` without the `stub` setting. An unavailable model returns an error rather than being silently replaced.
 
-The `docker compose up --build` path is present but has **not** been executed in this environment. Do not treat it as a verified one-command Qwen setup until it passes a clean build with empty volumes on the target hardware. First-run model downloads require several gigabytes and enough memory for the 7B model.
+The Compose frontend/backend builds pass. A CPU-only Ollama service starts, but the real Qwen pull is blocked by the managed proxy, so the one-command model workflow is **not verified**. First-run model downloads require several gigabytes and enough memory for the model. Compose defaults to `qwen2.5:3b`; set `OLLAMA_MODEL=qwen2.5:7b` for 7B.
 
 ### Checks
 
@@ -80,4 +80,4 @@ These local integration checks are not evidence of a successful remote deploymen
 - [`SUBMISSION.md`](SUBMISSION.md) is a cautious draft, not a claim of institutional deployment or evaluation evidence.
 - [`docs/requirements.md`](docs/requirements.md) maps each acceptance item to evidence and remaining work.
 
-No live tender data, personal procurement data, external budget data, or frontier-model endpoint is included. The prototype has no human approval or filing function; a local draft is not a filed report.
+No live tender data, personal procurement data, external budget data, or frontier-model endpoint is included. The new approval/filing implementation saves internal immutable reports only after exact-hash human approval. Production approval still requires officer configuration and validation.

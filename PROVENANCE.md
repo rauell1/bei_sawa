@@ -39,3 +39,15 @@ The repository currently contains a full MIT `LICENSE` and `pyproject.toml` MIT 
 ## Verification boundary
 
 The current branch's automated test suite uses synthetic fixtures and an explicit test stub; `EVALS.md` records the observed run. The current frontend build and post-migration test-stub live preview both passed; rerun from a clean checkout before release. No claim is made for real-data efficacy, Qwen quality, authenticated review, institutional use, hosting region, data residency, savings, update frequency, or adoption. No public demo video or evaluator login exists.
+
+## Historical data preparation — 9 October 2026
+
+No historical dataset has been imported. `scripts/import_historical.py` can select
+completed, dated energy/solar awards from an actual OCDS record package without
+rewriting records. It requires source, publisher, retrieval date and licence URLs,
+records the original archive SHA-256, and rejects empty subsets. Metadata supplied
+to this script is not independent proof of Kenyan publisher identity or licence
+permission. Keep the original archive and verify both before use. Configure a
+validated subset using `BEISAWA_DATA_FILE`; default fixtures remain synthetic.
+The Open Contracting registry fetch was blocked by this environment's proxy;
+network requirements were saved for review. The owner-provided source is pending.

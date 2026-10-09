@@ -7,7 +7,7 @@ This document describes code on the current working branch, not the audited targ
 ```text
 Browser
   └─ Next.js review desk
-       └─ same-origin /api/v1/* rewrite
+       └─ same-origin session-authenticated /api/v1/* proxy → Neon Function
             └─ FastAPI
                  ├─ MCPGateway → BeiSawa stdio MCP server
                  │    ├─ search_tenders
@@ -15,11 +15,11 @@ Browser
                  │    ├─ analyze_value_for_money
                  │    └─ draft_review_memo (local draft only)
                  ├─ MCPGateway → upstream filesystem MCP server (read playbook)
-                 ├─ LangGraph fixed flow: retrieve → deterministic checks → Qwen note
+                 ├─ LangGraph bounded loop: Qwen plan → execute → self-check → repeat/summarize
                  └─ local JSONL activity log and draft files
 ```
 
-The browser uses relative `/api/v1/*` paths; it does not call a browser-local `localhost` backend. FastAPI's lifespan opens one own-server and one filesystem MCP stdio session per API process and reuses those sessions across requests; they are closed on shutdown. Direct workflow tests without an app lifespan create a temporary gateway. MCP child environments are allowlisted rather than copied wholesale from the API process. There is no durable LangGraph checkpoint, database, identity provider, or production deployment.
+The browser uses relative `/api/v1/*` paths; it does not call a browser-local `localhost` backend. FastAPI's lifespan opens one own-server and one filesystem MCP stdio session per API process and reuses those sessions across requests; they are closed on shutdown. Direct workflow tests without an app lifespan create a temporary gateway. MCP child environments are allowlisted rather than copied wholesale from the API process. Hosted requests use Neon sessions/JWTs, Postgres and private Object Storage. Drafts carry portable LangGraph human-interrupt checkpoints persisted in Postgres. The deployed login was observed; authenticated production review/approval is not yet verified.
 
 ## Data identity and provenance
 
@@ -42,14 +42,14 @@ Every signal includes relevant JSON Pointer citations, source id, composite reco
 
 BeiSawa uses the MCP Python SDK client/server protocol for its own stdio server. The own server exposes search, scoped source retrieval, deterministic analysis, and a local citation-validated draft write. The borrowed `@modelcontextprotocol/server-filesystem` package is pinned in the Node manifest to `2026.8.31`; the app invokes it through MCP to read the playbook. The concrete reuse benefit is avoiding a custom implementation of MCP file reading and allowed-directory path resolution. The review workflow does not intentionally call filesystem mutation tools, but the upstream server process is not an OS-level read-only sandbox; its exact effective permissions must be reviewed before deployment.
 
-LangGraph executes a fixed retrieval → analysis → reflection graph. Qwen does not select tools, re-plan, or author deterministic findings. The Ollama adapter asks Qwen 2.5 for constrained JSON reviewer notes and checks citation IDs. Qwen/Ollama has not completed an actual end-to-end run in this environment. `BEISAWA_LLM_MODE=stub` is a labelled deterministic test/UI preview, not Qwen and not an evaluation of model quality.
+Ollama mode uses a bounded tool loop: Qwen selects search, retrieval, deterministic analysis, draft, finish or abstain from the discovered MCP inventory. Server code supplies scoped arguments, requires retrieval before analysis and adequate analysis before drafting, and refuses unlisted tools. Self-check retries retrieval on incomplete evidence and abstains when coverage stays thin. Tool choices and reasons are audited. The budget is eight choices. Final notes remain citation-ID validated. Explicit stub mode retains the fixed fixture graph. This does not establish model quality; real-run evidence belongs in EVALS.
 
 ## Draft, approval, and filing boundary
 
-The MCP write action saves a citation-validated JSON draft in a local runtime directory. The hosted Neon API then writes its private document to Object Storage and owner-scoped metadata to Postgres. Next.js sessions and both API/engine JWT checks use Neon Managed Auth. This integration is implemented and locally tested; live Neon deployment is still unverified. Drafts are not immutable filed reports. There is no named approval, report revision/hash signature, filing workflow, or procurement-system integration. No award, reject, cancel, publish, or government-submission action exists. Do not treat a client-supplied identity or approval flag as authority; approval would also need exact revision/hash binding, replay protection, database role separation, and a separately controlled filing action.
+The MCP write action validates and saves a local draft. The Neon API stores private bytes, an immutable canonical report hash and snapshot, and a portable LangGraph human-interrupt checkpoint. A named officer's JWT subject must match the operator-maintained registry and draft owner. Approval/rejection is immutable and binds the hash. Filing locks the draft row, checks approval and snapshot, resumes the graph, and inserts one filed snapshot in Postgres; retries return the existing report. No external procurement submission occurs. Legacy unhashed drafts need a new revision. See `docs/approval.md` for setup and limitations, including separate institutional roles and database-administrator access.
 
 ## Logs and deployment
 
-The engine writes completed MCP and model calls to scratch JSONL with request ids, inputs/outputs, timestamps, and durations. For hosted reviews/drafts it returns only the current server-generated request's events to the Neon API, which persists them under the verified reviewer's identity. The engine's aggregate audit endpoint is disabled in hosted mode. Because retrieval outputs are included, events may contain full source-record fields. This is not tamper-proof, independently retained, or a complete approval audit trail. Do not connect personal or sensitive procurement records until data classification, redaction, and retention are designed. `var/` is local scratch space excluded from Git; live Neon persistence remains unverified. See [deployment](docs/deployment.md).
+The engine writes completed MCP and model calls to scratch JSONL with request ids, inputs/outputs, timestamps, and durations. For hosted reviews/drafts it returns only the current server-generated request's events to the Neon API, which persists them under the verified reviewer's identity. The engine's aggregate audit endpoint is disabled in hosted mode. Because retrieval outputs are included, events may contain full source-record fields. Human decision and filing events are also stored transactionally in Neon. This is not tamper-proof or independently retained. Do not connect personal or sensitive procurement records until data classification, redaction, and retention are designed. `var/` is local scratch space excluded from Git; Authenticated production persistence and approval remain unverified. See [deployment](docs/deployment.md).
 
 A Docker Compose configuration and local Ollama integration are present but Compose builds, first-run model pull, Qwen execution, empty-volume recovery, hardware use, and hosting have not been verified here. If Frankfurt demo hosting remains the plan, disclose that region; no in-country residency claim is made. See the requirements and evaluation status for the exact verification boundary.

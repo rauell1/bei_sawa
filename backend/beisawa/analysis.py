@@ -5,7 +5,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-from beisawa.data import compiled_release, dataset_source_id, record_key_for, record_summary
+from beisawa.data import load_dataset, compiled_release, dataset_source_id, record_key_for, record_summary
 
 
 DISCLAIMER = (
@@ -177,7 +177,7 @@ def analyze_record(record: dict[str, Any], source_id: str | None = None) -> dict
         "record_id": record.get("id"),
         "title": summary["title"],
         "record_date": release.get("date"),
-        "provenance": "synthetic_demo_data",
+        "provenance": load_dataset().get("provenance", "unverified_source"),
         "result_label": "Review signal(s) found" if findings else "No automated signal found",
         "findings": findings,
         "limitations": limitations,

@@ -154,3 +154,53 @@ BEISAWA_LLM_MODE=stub npm_config_cache=/tmp/beisawa-npm-cache ./dev.sh
 `dev.sh` explicitly selects local mode and the Python backend; local mode is not
 an authentication test. Neon API tests use signed JWTs, embedded PostgreSQL, and
 fake object storage/engine failures. They are not a substitute for live checks.
+
+## Readiness revision (9 October 2026)
+
+Render and Neon infrastructure were deployed by the owner, migrations succeeded,
+and the public domain renders login. Earlier claims in this document that the
+engine URL was not supplied are historical. Production authenticated review and
+filing still need independent validation.
+
+For this revision, deploy the Python engine first (new internal human-interrupt
+routes), then migrate Neon, deploy its Function with the actual officer registry,
+and deploy Vercel. See `docs/approval.md`. Vercel's env requirements remain
+`NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `NEON_FUNCTION_API_BASE_URL`.
+`BEISAWA_APPROVERS` belongs in the Neon Function configuration, not browser code.
+Render stays authenticated (`BEISAWA_ENGINE_REQUIRE_AUTH=1`).
+
+Compose is an explicitly local-only workflow: its API disables hosted auth, its
+web enables local preview, and the API is not published to the host. Compose
+currently defaults to Qwen 2.5 3B; override `OLLAMA_MODEL` consistently for both
+model pull and engine. Dockerfiles support an optional `proxy_ca` build secret
+for verified TLS behind managed proxies. This is not a production Neon approval
+stack and cannot validate named officer authorization.
+
+The current free Render service uses the test stub. A real local Qwen recording
+does not convert that deployed service to real inference. Hosting Qwen needs an
+accessible Ollama instance configured with `OLLAMA_BASE_URL`/`OLLAMA_MODEL`, enough
+memory/CPU, and measured review latency within the Function/proxy limits. Do not
+claim hosted Qwen until an authenticated production review reports provider
+`ollama`, `used=true`, and the model digest/run evidence is recorded.
+
+For disk-limited CPU evaluation, an optional image copies the CPU binaries and
+licences from the verified official Ollama AMD64 digest:
+
+```bash
+docker compose -f docker-compose.yml -f infra/compose.cpu.yml up --build
+```
+
+This alternative has been built and its Ollama service started here. It does not
+prove inference: the Qwen weights download was blocked at the registry's R2
+redirect by the managed proxy. The default full GPU image exceeded available VFS
+writable-layer space. Neither failure was bypassed by disabling verification.
+After a complete model startup, record an actual run through Compose's internal
+web API (the API service has access to both `web` and `ollama`):
+
+```bash
+docker compose exec -T api python - < scripts/evaluate_qwen.py > docs/evidence/qwen-run.json
+```
+
+Check the command exits successfully and the artifact is complete before adding
+it to source control. It rejects stub and abstained reviews. The local stack
+cannot demonstrate production Neon approval. No public recording is shipped yet.

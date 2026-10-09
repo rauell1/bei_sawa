@@ -84,6 +84,8 @@ def create_draft(report: dict[str, Any], drafts_dir: Path) -> dict[str, Any]:
         raise InvalidDraft("Unknown or ambiguous source record; no draft was written.")
     validate_report_citations(report, record)
     canonical_report = analyze_record(record)
+    if set(report) != set(canonical_report):
+        raise InvalidDraft("Only the canonical analysis fields can be drafted; abstained reviews cannot be filed.")
     for key in (
         "source_id",
         "record_key",

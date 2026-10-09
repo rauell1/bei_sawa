@@ -13,9 +13,11 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.responses import JSONResponse
 
+from beisawa.approval import prepare_gate, resume_gate
 from beisawa.agent import run_review
 from beisawa.audit import get_audit_logger
 from beisawa.config import get_settings
+from beisawa.data import load_dataset
 from beisawa.mcp_client import MCPGateway, MCPToolError
 from beisawa.ollama import ModelOutputError, ModelUnavailableError
 from beisawa.auth import authenticate_reviewer
@@ -98,7 +100,7 @@ app = FastAPI(
     version="0.1.0",
     description=(
         "A synthetic-data OCDS review prototype. It prepares cited review drafts only; "
-        "there is no authenticated approval or procurement decision action."
+        "the Neon API separately enforces human approval and internal filing. No procurement decision action exists."
     ),
     lifespan=lifespan,
 )
@@ -143,7 +145,7 @@ async def health() -> dict[str, Any]:
     return {
         "status": "ok",
         "service": "BeiSawa Value-for-Money Review Agent",
-        "data_provenance": "synthetic_demo_data",
+        "data_provenance": load_dataset().get("provenance", "unverified_source"),
         "mcp_servers": {
             "bei_sawa": "own MCP server (4 tools)",
             "filesystem": "upstream MCP filesystem package; application calls read_text_file only",
@@ -234,3 +236,30 @@ async def save_draft(payload: DraftRequest, request: Request) -> dict[str, Any]:
 async def audit_events(limit: int = Query(default=50, ge=1, le=200)) -> dict[str, Any]:
     events = get_audit_logger().recent(limit)
     return {"events": events, "count": len(events), "log_format": "JSON Lines; append-only local audit trail"}
+
+
+class GateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    draft_id: str = Field(pattern=r"^draft-[a-f0-9]{32}$")
+    content_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class GateResumeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    checkpoint: dict[str, Any]
+    approval: dict[str, Any]
+
+
+@app.post("/internal/approval/prepare")
+def prepare_approval(payload: GateRequest, request: Request):
+    return prepare_gate(payload.draft_id, payload.content_hash, getattr(request.state, "reviewer_id", "local-preview"))
+
+
+@app.post("/internal/approval/resume")
+def resume_approval(payload: GateResumeRequest, request: Request):
+    # This returns graph state only: it cannot approve or file database reports.
+    # The Neon API supplies its persisted approval after independently checking it.
+    try:
+        return resume_gate(payload.checkpoint, payload.approval, getattr(request.state, "reviewer_id", "local-preview"))
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=422, detail="Approval checkpoint does not match") from exc

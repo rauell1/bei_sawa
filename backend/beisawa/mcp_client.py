@@ -60,6 +60,8 @@ class MCPGateway:
             "BEISAWA_DRAFTS_DIR": str(self.settings.drafts_dir),
             "BEISAWA_AUDIT_PATH": str(self.settings.audit_path),
         }
+        if self.settings.data_file:
+            child_env["BEISAWA_DATA_FILE"] = str(self.settings.data_file)
         return StdioServerParameters(
             command=sys.executable,
             args=["-m", "beisawa.mcp_server"],
