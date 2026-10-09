@@ -33,6 +33,6 @@ async def choose_tool(context: dict, tools: list[dict], *, settings, request_id:
     except httpx.HTTPError as exc:
         get_audit_logger().record_model_call(request_id=request_id, model=settings.ollama_model, mode="ollama_tool_choice", inputs=payload, outputs=None, error=type(exc).__name__, duration_ms=round((time.perf_counter()-started)*1000, 2))
         raise ModelUnavailableError("Ollama could not choose the next tool") from exc
-    except (ValueError, KeyError, TypeError) as exc:
+    except (ValueError, KeyError, TypeError, ModelOutputError) as exc:
         get_audit_logger().record_model_call(request_id=request_id, model=settings.ollama_model, mode="ollama_tool_choice", inputs=payload, outputs=output, error=type(exc).__name__, duration_ms=round((time.perf_counter()-started)*1000, 2))
         raise ModelOutputError("Qwen tool choice failed validation") from exc

@@ -83,7 +83,7 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
             return {}
         findings_grounded = all(f.get("citations") for f in report.get("findings", []))
         # Incomplete assessments must not masquerade as a completed review.
-        thin = not report.get("citations") or not findings_grounded or any(c.get("status") == "not_assessed" for c in report.get("checks", []))
+        thin = not report.get("citations") or not report.get("checks") or not findings_grounded or any(c.get("status") == "not_assessed" for c in report.get("checks", []))
         if thin:
             if state.get("retrievals", 0) >= 2:
                 return {"thin": True, "done": True, "abstained": True, "feedback": "Evidence remains incomplete after retrieval retry"}
@@ -97,6 +97,7 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
         if not state.get("report") or not state.get("source_record"):
             raise ValueError("Agent abstained before retrieving and analyzing a report")
         if state.get("abstained"):
+            state["report"]["assessment_status"] = "abstained"
             notes = {"review_note": "Abstained: " + state.get("feedback", "Insufficient evidence"), "citation_ids": [], "questions": [],
                      "provider": "ollama", "model": settings.ollama_model, "used": True, "notice": "No completed assessment; do not file this review."}
         else:

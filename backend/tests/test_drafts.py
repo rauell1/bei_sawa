@@ -58,3 +58,13 @@ def test_draft_rejects_edited_finding_even_with_valid_citations(tmp_path, demo_r
     with pytest.raises(InvalidDraft, match="server-side OCDS analysis"):
         create_draft(report, tmp_path)
     assert list(tmp_path.glob("*.json")) == []
+
+
+def test_extra_approval_fields_and_abstained_reports_cannot_be_drafted(tmp_path, demo_record):
+    from beisawa.analysis import analyze_record
+    from beisawa.drafts import InvalidDraft, create_draft
+    import pytest
+    report = analyze_record(demo_record("ocds-beisawa-demo-2026-0001"))
+    for extra in [{"approved": True}, {"assessment_status": "abstained"}]:
+        with pytest.raises(InvalidDraft):
+            create_draft({**report, **extra}, tmp_path)
