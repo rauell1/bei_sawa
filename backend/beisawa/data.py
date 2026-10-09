@@ -22,7 +22,7 @@ class DuplicateRecordReference(ValueError):
 
 @lru_cache(maxsize=4)
 def load_dataset(data_file: str | None = None) -> dict[str, Any]:
-    path = Path(data_file).resolve() if data_file else get_settings().data_dir / "ocds_demo.json"
+    path = Path(data_file).resolve() if data_file else (get_settings().data_file or get_settings().data_dir / "ocds_demo.json")
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or not isinstance(payload.get("records"), list):
         raise ValueError(f"Invalid OCDS dataset manifest: {path}")
@@ -135,7 +135,7 @@ def record_summary(record: dict[str, Any], source_id: str | None = None) -> dict
         "estimated_value": estimate.get("amount"),
         "award_value": award_value.get("amount"),
         "currency": estimate.get("currency") or award_value.get("currency"),
-        "provenance": "synthetic_demo_data",
+        "provenance": load_dataset().get("provenance", "unverified_source"),
     }
 
 

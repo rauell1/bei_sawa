@@ -202,6 +202,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
     return tenders.filter((tender) => `${tender.title} ${tender.source_id} ${tender.ocid} ${tender.record_id}`.toLocaleLowerCase().includes(normalized));
   }, [query, tenders]);
 
+  const syntheticData = health?.data_provenance !== "historical_source_data";
   const selectedTender = tenders.find((item) => item.record_key === selectedRecordKey) || null;
   const completedCalls = audit.filter((event) => event.event_type === "mcp_tool_call").length;
   const surfacedFlags = review?.report.findings.length ?? 0;
@@ -286,7 +287,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
           <div className="breadcrumb"><span>BeiSawa</span><i>/</i><strong>Review desk</strong></div>
           <div className="topbar-right">
             {!localPreview && <button className="auth-switch" onClick={signOut} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out"}</button>}
-            <span className="data-badge"><span className="data-dot" /> SYNTHETIC DEMO DATA</span>
+            <span className="data-badge"><span className="data-dot" /> {syntheticData ? "SYNTHETIC DEMO DATA" : "HISTORICAL SOURCE DATA"}</span>
             <button className={`model-status ${qwenTagPresent ? "model-ready" : isTestMode ? "model-preview" : "model-offline"}`} onClick={refreshHealth} title={health?.model.notice || "Checking local model"}>
               <span className="status-dot" />{qwenTagPresent ? "QWEN TAG PRESENT" : isTestMode ? "TEST PREVIEW MODE" : otherOllamaModel ? "CONFIGURED MODEL NOT QWEN" : "QWEN · CHECK STATUS"}
             </button>
@@ -315,10 +316,10 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
           </section>
 
           <section className="metric-grid" aria-label="Workspace snapshot">
-            <div className="metric-card"><div className="metric-top"><span>DEMO RECORDS</span><span className="metric-icon mint"><Icon name="file" size={16} /></span></div><strong>{loading ? "—" : String(tenders.length).padStart(2, "0")}</strong><small>OCDS-shaped · invented data</small></div>
+            <div className="metric-card"><div className="metric-top"><span>{syntheticData ? "DEMO RECORDS" : "SOURCE RECORDS"}</span><span className="metric-icon mint"><Icon name="file" size={16} /></span></div><strong>{loading ? "—" : String(tenders.length).padStart(2, "0")}</strong><small>{syntheticData ? "OCDS-shaped · invented data" : "Historical subset · verify publisher and archive"}</small></div>
             <div className="metric-card"><div className="metric-top"><span>REVIEW SIGNALS</span><span className="metric-icon amber"><Icon name="search" size={16} /></span></div><strong>{String(surfacedFlags).padStart(2, "0")}</strong><small>{review ? "In the current review" : "Run a review to surface checks"}</small></div>
             <div className="metric-card"><div className="metric-top"><span>TOOL CALLS LOGGED</span><span className="metric-icon blue"><Icon name="clock" size={16} /></span></div><strong>{String(completedCalls).padStart(2, "0")}</strong><small>Inputs · outputs · timestamps</small></div>
-            <div className="metric-card policy-metric"><div className="metric-top"><span>APPROVAL / FILING</span><span className="metric-icon outline"><Icon name="shield" size={16} /></span></div><strong>Human gate</strong><small>Named officer · exact revision · private filing</small></div>
+            <div className="metric-card policy-metric"><div className="metric-top"><span>APPROVAL / FILING</span><span className="metric-icon outline"><Icon name="shield" size={16} /></span></div><strong>{localPreview ? "Hosted only" : "Human gate"}</strong><small>{localPreview ? "Local preview cannot approve or file" : "Named officer · exact revision · private filing"}</small></div>
           </section>
 
           <section className="workspace-section" id="review">
@@ -335,8 +336,8 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
                   <span className="standard-tag">OCDS</span>
                 </div>
                 <label className="field-label" htmlFor="record-search">Search by title, OCID, record id or source dataset</label>
-                <div className="search-field"><Icon name="search" size={17} /><input id="record-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try “clinic” or an OCID" /><span className="search-shortcut">⌕</span></div>
-                <label className="field-label select-label" htmlFor="record-select">Demo record <span>{filteredTenders.length} AVAILABLE</span></label>
+                <div className="search-field"><Icon name="search" size={17} /><input id="record-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search title or OCID" /><span className="search-shortcut">⌕</span></div>
+                <label className="field-label select-label" htmlFor="record-select">Source record <span>{filteredTenders.length} AVAILABLE</span></label>
                 <select id="record-select" className="record-select" value={selectedRecordKey} onChange={(event) => { setSelectedRecordKey(event.target.value); setReview(null); setDraft(null); }} disabled={!filteredTenders.length}>
                   {filteredTenders.length === 0 && <option value="">No records match this search</option>}
                   {filteredTenders.map((tender) => <option key={tender.record_key} value={tender.record_key}>{tender.title} — {tender.ocid} · {tender.source_id}</option>)}
@@ -349,10 +350,10 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
                       <div><span>AWARD VALUE</span><strong>{formatMoney(selectedTender.award_value, selectedTender.currency)}</strong></div>
                       <div><span>RECORDED TENDERERS</span><strong>{selectedTender.number_of_tenderers === null ? "Not recorded" : selectedTender.number_of_tenderers}</strong></div>
                     </div>
-                    <div className="record-footer"><span className="synthetic-tag"><span /> Synthetic example</span><span className="method-tag">{selectedTender.procurement_method || "Method not recorded"}</span></div>
+                    <div className="record-footer"><span className="synthetic-tag"><span /> {selectedTender.provenance === "synthetic_demo_data" ? "Synthetic example" : "Historical source"}</span><span className="method-tag">{selectedTender.procurement_method || "Method not recorded"}</span></div>
                   </div>
                 ) : (
-                  <div className="selected-record missing-record">{loading ? "Loading synthetic records…" : "No record selected."}</div>
+                  <div className="selected-record missing-record">{loading ? "Loading source records…" : "No record selected."}</div>
                 )}
                 {searchError && <div className="inline-error">{searchError}</div>}
                 <button className="button button-primary run-button" onClick={runReview} disabled={!selectedRecordKey || reviewing || loading}>
@@ -367,7 +368,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
                     <div className="empty-art"><span className="empty-ring ring-a" /><span className="empty-ring ring-b" /><span className="empty-document"><Icon name="file" size={23} /></span></div>
                     <div className="section-kicker">YOUR REVIEW REPORT</div>
                     <h3>Evidence first.<br /><em>Conclusions later.</em></h3>
-                    <p>Choose a synthetic OCDS record and run the review. Every signal will come with a source record and exact JSON Pointer.</p>
+                    <p>Choose an OCDS source record and run the review. Every signal will come with a source record and exact JSON Pointer.</p>
                     <div className="empty-steps"><span><i>1</i> Retrieve</span><b>—</b><span><i>2</i> Check</span><b>—</b><span><i>3</i> Cite</span></div>
                   </div>
                 ) : reviewing ? (
@@ -433,11 +434,11 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
           <section className="governance-section" id="governance">
             <div className="governance-heading"><span className="governance-icon"><Icon name="shield" size={21} /></span><div><div className="section-kicker">03 / GOVERNANCE BY DESIGN</div><h2>No automated procurement decisions.</h2></div></div>
             <div className="governance-grid">
-              <div><span className="governance-index">01</span><strong>Cited source fields</strong><p>Configured signals link to the selected synthetic record, source identifiers and exact JSON Pointers.</p></div>
+              <div><span className="governance-index">01</span><strong>Cited source fields</strong><p>Configured signals link to the selected source record, source identifiers and exact JSON Pointers.</p></div>
               <div><span className="governance-index">02</span><strong>Draft, never decide</strong><p>There are no award, reject, cancel, publish or external submission tools in the agent.</p></div>
               <div><span className="governance-index">03</span><strong>{localPreview ? "Local activity trail" : "Private review workspace"}</strong><p>{localPreview ? "Completed MCP and model calls are logged locally. The JSONL log is not tamper-proof; drafts require human review." : "Saved drafts and review activity belong to your account. They require human review and are not approved or filed reports."}</p></div>
             </div>
-            <div className="governance-bottom"><span>DEMO DATA NOTICE</span><p>All sample procurement records are invented. They must not be treated as real procurement evidence or allegations.</p><a href={MATERIALS_URL} target="_blank" rel="noreferrer">Open BeiSawa materials <Icon name="external" size={13} /></a></div>
+            <div className="governance-bottom"><span>DEMO DATA NOTICE</span><p>{syntheticData ? "All sample procurement records are invented. They must not be treated as real procurement evidence or allegations." : "Historical subset: verify the archived source and publisher. Review signals are not allegations."}</p><a href={MATERIALS_URL} target="_blank" rel="noreferrer">Open BeiSawa materials <Icon name="external" size={13} /></a></div>
           </section>
           <footer className="page-footer"><span>BEISAWA <b>·</b> FAIR PRICE, WITH EVIDENCE</span><span>Built for governance review <b>·</b> Nairobi, Kenya</span></footer>
         </div>

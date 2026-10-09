@@ -17,6 +17,7 @@ from beisawa.approval import prepare_gate, resume_gate
 from beisawa.agent import run_review
 from beisawa.audit import get_audit_logger
 from beisawa.config import get_settings
+from beisawa.data import load_dataset
 from beisawa.mcp_client import MCPGateway, MCPToolError
 from beisawa.ollama import ModelOutputError, ModelUnavailableError
 from beisawa.auth import authenticate_reviewer
@@ -144,7 +145,7 @@ async def health() -> dict[str, Any]:
     return {
         "status": "ok",
         "service": "BeiSawa Value-for-Money Review Agent",
-        "data_provenance": "synthetic_demo_data",
+        "data_provenance": load_dataset().get("provenance", "unverified_source"),
         "mcp_servers": {
             "bei_sawa": "own MCP server (4 tools)",
             "filesystem": "upstream MCP filesystem package; application calls read_text_file only",

@@ -18,6 +18,7 @@ class Settings:
     ollama_model: str
     llm_mode: str
     mcp_filesystem_command: str | None
+    data_file: Path | None = None
 
 
 @lru_cache(maxsize=1)
@@ -38,6 +39,7 @@ def get_settings() -> Settings:
         ollama_model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b"),
         llm_mode=os.getenv("BEISAWA_LLM_MODE", "ollama").strip().lower(),
         mcp_filesystem_command=os.getenv("MCP_FILESYSTEM_COMMAND"),
+        data_file=Path(os.environ["BEISAWA_DATA_FILE"]).expanduser().resolve() if os.getenv("BEISAWA_DATA_FILE") else None,
     )
 
 
