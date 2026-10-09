@@ -24,7 +24,18 @@ async def test_choices_use_discovered_tools_and_server_scoped_arguments(demo_rec
     gateway = Gateway(record, report)
     sequence = iter(["get_tender_record", "analyze_value_for_money", "draft_review_memo", "finish"])
     async def choose(context, tools, **kwargs):
-        assert len(tools) == 4
+        assert all(t["name"] in {"search_tenders", "get_tender_record", "analyze_value_for_money", "draft_review_memo"} for t in tools)
+        names = {tool["name"] for tool in tools}
+        if context["retrieved"]:
+            assert "search_tenders" not in names or not context["search_results"]
+            assert "get_tender_record" not in names
+        else:
+            assert "analyze_value_for_money" not in names
+            assert "draft_review_memo" not in names
+        if context["analyzed"]:
+            assert "analyze_value_for_money" not in names
+        if context["drafted"]:
+            assert "draft_review_memo" not in names
         return {"tool": next(sequence), "reason": "Test choice based on observed state"}
     result = await run_tool_loop(demo_record_key(record["ocid"]), gateway=gateway, settings=get_settings(), request_id="loop-test", chooser=choose)
     assert not result["abstained"]

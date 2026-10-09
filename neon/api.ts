@@ -40,7 +40,7 @@ function buildServices(): Services {
       async ready() { await s3.send(new HeadBucketCommand({ Bucket: bucket })); },
     },
     engine(path, init, authorization) {
-      return fetch(new URL(path, engineUrl), { ...init, redirect: "error", signal: AbortSignal.timeout(120_000), headers: { ...init?.headers, Authorization: authorization || "" } });
+      return fetch(new URL(path, engineUrl), { ...init, redirect: "error", signal: AbortSignal.timeout(240_000), headers: { ...init?.headers, Authorization: authorization || "" } });
     },
   };
 }

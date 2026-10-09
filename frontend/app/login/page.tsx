@@ -45,5 +45,6 @@ export default function Login() {
     {message && <p role="status">{message}</p>}
     <button className="auth-switch" disabled={pending} onClick={() => { setRegister(recover ? false : !register); setRecover(false); setMessage(""); }}>{register || recover ? "Back to sign in" : "Create an account"}</button>
     {!register && !recover && <button className="auth-switch" disabled={pending} onClick={() => { setRecover(true); setMessage(""); }}>Forgot password?</button>}
+    <p><a href="/demo">View the public recorded Qwen review</a></p>
   </section></main>;
 }
