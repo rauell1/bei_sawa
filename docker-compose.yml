@@ -18,7 +18,7 @@ services:
   qwen-model:
     image: ollama/ollama:latest
     entrypoint: ["/bin/ollama"]
-    command: ["pull", "qwen2.5:7b"]
+    command: ["pull", "${OLLAMA_MODEL:-qwen2.5:3b}"]
     environment:
       OLLAMA_HOST: ollama:11434
     depends_on:
@@ -31,9 +31,11 @@ services:
       context: .
       dockerfile: infra/backend.Dockerfile
     environment:
+      # Local-only stack. The public Render image keeps auth enabled.
+      BEISAWA_ENGINE_REQUIRE_AUTH: "0"
       BEISAWA_LLM_MODE: ollama
       OLLAMA_BASE_URL: http://ollama:11434
-      OLLAMA_MODEL: qwen2.5:7b
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
       BEISAWA_HOME: /app
       BEISAWA_DATA_DIR: /app/backend/beisawa/data
       BEISAWA_RUNTIME_DIR: /app/var
@@ -62,6 +64,7 @@ services:
       context: .
       dockerfile: infra/frontend.Dockerfile
     environment:
+      BEISAWA_DEPLOYMENT_MODE: local
       API_INTERNAL_URL: http://api:8000
       HOSTNAME: 0.0.0.0
       PORT: 3000

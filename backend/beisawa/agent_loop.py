@@ -4,6 +4,7 @@ from typing import TypedDict, Any
 from langgraph.graph import StateGraph, START, END
 from beisawa.ollama import create_review_notes
 from beisawa.planner import choose_tool
+from beisawa.data import split_record_key
 
 ALLOWED = {"search_tenders", "get_tender_record", "analyze_value_for_money", "draft_review_memo"}
 MAX_STEPS = 8
@@ -23,6 +24,7 @@ class LoopState(TypedDict, total=False):
     abstained: bool
     model_notes: dict
     draft: dict
+    search_results: dict
 
 
 async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=choose_tool):
@@ -38,7 +40,7 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
         context = {"record_key": record_key, "steps": state["steps"], "retrieved": "source_record" in state,
             "analyzed": "report" in state, "drafted": "draft" in state,
             "feedback": state.get("feedback", ""), "trace": state["trace"],
-            "evidence": state.get("report", {})}
+            "evidence": state.get("report", {}), "search_results": state.get("search_results", {}), "source_record": state.get("source_record", {})}
         choice = await chooser(context, tools, settings=settings, request_id=request_id)
         if choice["tool"] not in ALLOWED | {"finish", "abstain"}:
             raise ValueError("Planner selected a forbidden tool")
@@ -59,7 +61,7 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
         if tool == "draft_review_memo" and (not state.get("report") or state.get("thin")):
             return {**update, "feedback": "Draft refused: adequate analyzed evidence is required"}
         if tool == "search_tenders":
-            args = {"query": record_key.split("/")[-2] if "/" in record_key else record_key, "limit": 5}
+            args = {"query": split_record_key(record_key)[1], "limit": 5}
         elif tool in {"get_tender_record", "analyze_value_for_money"}:
             args = {"record_key": record_key}
         else:
@@ -67,7 +69,9 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
         result = await gateway.call("bei_sawa", tool, args, request_id=request_id)
         if isinstance(result, dict) and result.get("error"):
             return {**update, "feedback": "The tool could not supply valid evidence; retrieve again or abstain"}
-        if tool == "get_tender_record":
+        if tool == "search_tenders":
+            update["search_results"] = result
+        elif tool == "get_tender_record":
             update.update(source_record=result, retrievals=state.get("retrievals", 0)+1)
         elif tool == "analyze_value_for_money":
             if result.get("record_key") != record_key:

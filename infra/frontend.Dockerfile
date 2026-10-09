@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM node:22-bookworm-slim
 
 ENV NEXT_TELEMETRY_DISABLED=1 \
@@ -7,7 +8,9 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 WORKDIR /app/frontend
 
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN --mount=type=secret,id=proxy_ca \
+    if [ -f /run/secrets/proxy_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/proxy_ca; fi; \
+    npm ci --no-audit --no-fund
 COPY frontend ./
 RUN npm run build
 

@@ -78,3 +78,8 @@ arguments remain scoped, incomplete evidence causes a second retrieval then
 abstention without drafting, and repeated choices stop at the eight-choice budget.
 They passed with async IPC available. They are control-flow tests, not evidence
 that Qwen chose tools or produced a useful review.
+
+The historical importer test uses invented input and verifies record preservation,
+closed-status filtering, and refusal of future awards. It is not historical-data
+evaluation. A canonical draft test also refuses added approval flags and abstention
+markers. Final Python regression suite now includes these tests.
