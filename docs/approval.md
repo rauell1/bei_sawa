@@ -29,3 +29,18 @@ filing authority. The Neon transaction verifies role, owner, snapshot hash,
 immutable decision, and checkpoint result independently. Runtime database
 credentials can still modify tables; distinct database roles and tamper-evident
 institutional audit remain outside this implementation.
+
+## Designated evaluator
+
+The owner designated **Roy Okola Otieno** as both approval officer and evaluator,
+using the existing Neon account. This designation does not create a second role,
+change authorization, or demonstrate independent review. His email and user ID
+are retained in ignored operator configuration; no new account or password is
+required. The existing subject-based approver registry still governs decisions.
+
+Production verification remains pending. In the signed-in account, create a new
+review and draft; confirm the approval panel shows the named officer and revision
+hash; approve and file, then reload and retry filing to confirm one report. Create
+another draft and reject it; verify filing is refused. Record outcomes and errors
+without session tokens or passwords. The owner’s reported Function deployment is
+not evidence that these authenticated operations passed.

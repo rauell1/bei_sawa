@@ -2,7 +2,7 @@
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
-> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The owner supplied the officer identity; its production registry and approval workflow still need deployment and verification. Historical energy/solar data and named evaluator access remain required. A 35-second recorded-run browser walkthrough is included; the final challenge demo still needs production verification. One genuine Qwen 3B run is recorded and available at the public `/demo` route; see EVALS and [`docs/approval.md`](docs/approval.md).
+> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The owner supplied the officer identity; its production registry and approval workflow still need deployment and verification. Historical energy/solar data and authenticated evaluator workflow verification remain required. Roy is designated as both officer and evaluator using his existing account. A 35-second recorded-run browser walkthrough is included; the final challenge demo still needs production verification. One genuine Qwen 3B run is recorded and available at the public `/demo` route; see EVALS and [`docs/approval.md`](docs/approval.md).
 
 > **Synthetic data notice:** The bundled records are invented for demonstration. Nothing in this repository is a claim about a real tender, supplier, or person. “No automated signal” is not assurance of value or compliance.
 
@@ -69,7 +69,7 @@ These local integration checks are not evidence of a successful remote deploymen
 - **Domain:** `beisawa.rauell.systems`; deployment and DNS are not configured.
 - **Repository:** [rauell1/bei_sawa](https://github.com/rauell1/bei_sawa). The repository is public; the current working branch is not a deployed demo.
 - **Deadline:** 15 October 2026, as supplied by the owner; cutoff time and timezone have not been confirmed.
-- **Demo video and named evaluator access:** not configured.
+- **Evaluator:** Roy Okola Otieno uses the existing officer account; authenticated production workflow remains unverified. The public demo includes a 35-second recorded-run walkthrough.
 - **Licence:** [`LICENSE`](LICENSE) currently contains MIT as a provisional choice. Owner confirmation is required before publication of this contribution.
 
 ## Architecture, evidence and limitations

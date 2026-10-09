@@ -17,7 +17,7 @@ eligibility decision. `BUILD_PROMPT.md` was not present in this checkout.
 | Historical Kenya energy/solar data | Provenance-preserving import script; configurable dataset; closed/datetime/currency filters; archive SHA | No real data imported. Need verified source, publisher, redistribution licence and source archive. Registry metadata reachable; Makueni archive redirect remains blocked at Fastly. Synthetic fixtures remain the default. |
 | Deterministic assessment | First-award estimate comparison and recorded tenderer count | No `benchmark_prices`, `check_budget`, unit-price analysis, amendments or complete energy-specific assessment. Form must not claim these. |
 | Audit | MCP/model choices with reasons; request-scoped events in owner-scoped Neon; human decision and filing events | Local tests pass. No tamper-evident chain, independent retention, institutional roles or sensitive-data redaction. |
-| Evaluator demo | Hosted sign-in; self sign-up | Public `/demo` displays genuine recorded run without login; named evaluator account and authenticated hosted review remain pending. Login rendering alone is insufficient. |
+| Evaluator demo | Hosted sign-in; self sign-up | Public `/demo` displays genuine recorded run without login. Owner designated Roy Okola Otieno as evaluator using his existing approval-officer account; authenticated hosted review remains unverified. No independent evaluator is claimed. Login rendering alone is insufficient. |
 | Public repo and licence | Existing public repository and MIT licence | Current readiness changes need review and deployment. No institutional adoption or endorsement claimed. |
 | 30–60 second video | 35-second browser walkthrough in `frontend/public/evidence/qwen-walkthrough.mp4` | Actual recorded synthetic run playback; does not demonstrate live inference or production approval. Final challenge video must accurately disclose these limits. |
 | Challenge deadline/rules | Owner supplied 15 October 2026 | Exact organiser rules, cutoff time/timezone and eligibility require original challenge materials. |
@@ -38,7 +38,7 @@ eligibility decision. `BUILD_PROMPT.md` was not present in this checkout.
 ## Remaining owner inputs
 
 1. Deploy the supplied officer registry via `BEISAWA_APPROVERS` in the Function and verify the production gate. Account signup does not grant approval.
-2. Named evaluator's name/email and secure account provisioning.
+2. Verify the evaluator workflow using Roy’s existing account; no separate evaluator identity or new account is required.
 3. Verified historical Kenya energy/solar source and licence; source archive.
 4. Original challenge/build materials and final video publishing destination.
 
