@@ -7,6 +7,7 @@ import time
 from datetime import UTC, datetime
 from typing import Any
 
+from beisawa.ollama_connection import ollama_headers
 import httpx
 
 from beisawa.audit import get_audit_logger
@@ -172,7 +173,7 @@ async def create_review_notes(
     error: str | None = None
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(150.0, connect=4.0)) as client:
-            response = await client.post(f"{settings.ollama_base_url}/api/chat", json=request_body)
+            response = await client.post(f"{settings.ollama_base_url}/api/chat", json=request_body, headers=ollama_headers(settings))
             response.raise_for_status()
         body = response.json()
         raw_content = body.get("message", {}).get("content")

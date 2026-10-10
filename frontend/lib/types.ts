@@ -119,3 +119,12 @@ export type DraftReceipt = {
   external_action_taken: boolean;
   message: string;
 };
+
+export type FiledReport = {
+  report_id: string;
+  draft_id: string;
+  content_hash: string;
+  snapshot: ReviewReport;
+  approval: { approver_name: string; decision: "approve"; content_hash: string; created_at: string };
+  created_at: string;
+};

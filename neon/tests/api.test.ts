@@ -185,3 +185,22 @@ test("tampering with a stored snapshot prevents approval", async () => {
   await db.query("UPDATE beisawa_drafts SET snapshot=$1::jsonb WHERE draft_id=$2", [JSON.stringify({ ...report, findings: ["tampered"] }), draft.draft_id]);
   assert.equal((await officerRequest(`drafts/${draft.draft_id}/decision`, { content_hash: draft.content_hash, decision: "approve" })).status, 409);
 });
+
+test("filed report detail and download are owner-scoped and reject changed snapshots", async () => {
+  const draft = await (await request("drafts", { body: { report } })).json();
+  await officerRequest(`drafts/${draft.draft_id}/decision`, { content_hash: draft.content_hash, decision: "approve" });
+  const filed = await (await officerRequest(`drafts/${draft.draft_id}/file`, { content_hash: draft.content_hash })).json();
+  const endpoint = `filed-reports/${filed.report_id}`;
+  const detail = await request(endpoint);
+  assert.equal(detail.status, 200);
+  assert.deepEqual((await detail.json()).snapshot, report);
+  assert.equal((await request(endpoint, { owner: "reviewer-b" })).status, 404);
+  assert.equal((await request(endpoint + "?download=1", { owner: "reviewer-b" })).status, 404);
+  const download = await request(endpoint + "?download=1");
+  assert.match(download.headers.get("Content-Disposition")!, /beisawa-report-/);
+  assert.equal(download.headers.get("Cache-Control"), "no-store");
+  assert.equal((await download.json()).content_hash, filed.content_hash);
+  await db.query("UPDATE beisawa_filed_reports SET snapshot=$1::jsonb WHERE report_id=$2", [JSON.stringify({ ...report, title: "altered" }), filed.report_id]);
+  assert.equal((await request(endpoint)).status, 409);
+  assert.equal((await request(endpoint + "?download=1")).status, 409);
+});

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BrandLogo } from "./brand-logo";
+import { FiledReports } from "./filed-reports";
 import { ApprovalPanel } from "./approval-panel";
 import { authClient } from "@/lib/auth/client";
 import { getDrafts } from "@/lib/api";
@@ -182,16 +183,16 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
 
   useEffect(() => {
     let active = true;
-    Promise.all([getTenders(), getHealth(), getAudit()])
+    Promise.allSettled([getTenders(), getHealth(), getAudit()])
       .then(([records, serviceHealth, events]) => {
         if (!active) return;
-        setTenders(records);
-        setHealth(serviceHealth);
-        setAudit(events);
-        setSelectedRecordKey(records[0]?.record_key || "");
-      })
-      .catch((reason: unknown) => {
-        if (active) setSearchError(reason instanceof Error ? reason.message : "Could not reach the BeiSawa API.");
+        if (records.status === "fulfilled") {
+          setTenders(records.value);
+          setSelectedRecordKey(records.value[0]?.record_key || "");
+        } else setSearchError(records.reason instanceof Error ? records.reason.message : "Records could not be loaded.");
+        if (serviceHealth.status === "fulfilled") setHealth(serviceHealth.value);
+        else setError("Service status is unavailable. Records may still be reviewed; retry if the engine is waking up.");
+        if (events.status === "fulfilled") setAudit(events.value);
       })
       .finally(() => active && setLoading(false));
     return () => { active = false; };
@@ -203,7 +204,8 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
     return tenders.filter((tender) => `${tender.title} ${tender.source_id} ${tender.ocid} ${tender.record_id}`.toLocaleLowerCase().includes(normalized));
   }, [query, tenders]);
 
-  const syntheticData = health?.data_provenance !== "historical_source_data";
+  const syntheticData = health?.data_provenance === "synthetic_demo_data";
+  const provenanceUnknown = !["synthetic_demo_data", "historical_source_data"].includes(health?.data_provenance || "");
   const selectedTender = tenders.find((item) => item.record_key === selectedRecordKey) || null;
   const completedCalls = audit.filter((event) => event.event_type === "mcp_tool_call").length;
   const surfacedFlags = review?.report.findings.length ?? 0;
@@ -214,6 +216,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
   async function runReview() {
     if (!selectedRecordKey) return;
     setReviewing(true);
+    setReview(null);
     setError("");
     setDraft(null);
     try {
@@ -287,7 +290,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
           <div className="breadcrumb"><span>BeiSawa</span><i>/</i><strong>Review desk</strong></div>
           <div className="topbar-right">
             {!localPreview && <button className="auth-switch" onClick={signOut} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out"}</button>}
-            <span className="data-badge"><span className="data-dot" /> {syntheticData ? "SYNTHETIC DEMO DATA" : "HISTORICAL SOURCE DATA"}</span>
+            <span className="data-badge"><span className="data-dot" /> {provenanceUnknown ? "DATA STATUS UNAVAILABLE" : syntheticData ? "SYNTHETIC DEMO DATA" : "HISTORICAL SOURCE DATA"}</span>
             <button className={`model-status ${qwenTagPresent ? "model-ready" : isTestMode ? "model-preview" : "model-offline"}`} onClick={refreshHealth} title={health?.model.notice || "Checking local model"}>
               <span className="status-dot" />{qwenTagPresent ? "QWEN TAG PRESENT" : isTestMode ? "TEST PREVIEW MODE" : otherOllamaModel ? "CONFIGURED MODEL NOT QWEN" : "QWEN · CHECK STATUS"}
             </button>
@@ -316,7 +319,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
           </section>
 
           <section className="metric-grid" aria-label="Workspace snapshot">
-            <div className="metric-card"><div className="metric-top"><span>{syntheticData ? "DEMO RECORDS" : "SOURCE RECORDS"}</span><span className="metric-icon mint"><Icon name="file" size={16} /></span></div><strong>{loading ? "—" : String(tenders.length).padStart(2, "0")}</strong><small>{syntheticData ? "OCDS-shaped · invented data" : "Historical subset · verify publisher and archive"}</small></div>
+            <div className="metric-card"><div className="metric-top"><span>{syntheticData ? "DEMO RECORDS" : "SOURCE RECORDS"}</span><span className="metric-icon mint"><Icon name="file" size={16} /></span></div><strong>{loading ? "—" : String(tenders.length).padStart(2, "0")}</strong><small>{provenanceUnknown ? "Verify provenance before reviewing" : syntheticData ? "OCDS-shaped · invented data" : "Historical subset · verify publisher and archive"}</small></div>
             <div className="metric-card"><div className="metric-top"><span>REVIEW SIGNALS</span><span className="metric-icon amber"><Icon name="search" size={16} /></span></div><strong>{String(surfacedFlags).padStart(2, "0")}</strong><small>{review ? "In the current review" : "Run a review to surface checks"}</small></div>
             <div className="metric-card"><div className="metric-top"><span>TOOL CALLS LOGGED</span><span className="metric-icon blue"><Icon name="clock" size={16} /></span></div><strong>{String(completedCalls).padStart(2, "0")}</strong><small>Inputs · outputs · timestamps</small></div>
             <div className="metric-card policy-metric"><div className="metric-top"><span>APPROVAL / FILING</span><span className="metric-icon outline"><Icon name="shield" size={16} /></span></div><strong>{localPreview ? "Hosted only" : "Human gate"}</strong><small>{localPreview ? "Local preview cannot approve or file" : "Named officer · exact revision · private filing"}</small></div>
@@ -426,6 +429,8 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
             <ul className="saved-drafts">{savedDrafts.map(item => <li key={item.draft_id}><a href={item.path}>{item.draft_id}</a><span>{item.ocid} · {formatTime(item.created_at)}</span></li>)}</ul>
             <ApprovalPanel drafts={savedDrafts} />
           </section>}
+          {!localPreview && <FiledReports drafts={savedDrafts} />}
+
           <section className="audit-section" id="audit">
             <div className="section-heading audit-heading"><div><div className="section-kicker">02 / ACCOUNTABILITY</div><h2>{localPreview ? "A trace for every tool call" : "Your review activity"}</h2></div><div className="audit-count"><span className="live-dot" /> {audit.length} RECENT EVENTS</div></div>
             <ToolTrail events={audit} loading={loading} localPreview={localPreview} />
@@ -438,7 +443,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
               <div><span className="governance-index">02</span><strong>Draft, never decide</strong><p>There are no award, reject, cancel, publish or external submission tools in the agent.</p></div>
               <div><span className="governance-index">03</span><strong>{localPreview ? "Local activity trail" : "Private review workspace"}</strong><p>{localPreview ? "Completed MCP and model calls are logged locally. The JSONL log is not tamper-proof; drafts require human review." : "Saved drafts and review activity belong to your account. They require human review and are not approved or filed reports."}</p></div>
             </div>
-            <div className="governance-bottom"><span>DEMO DATA NOTICE</span><p>{syntheticData ? "All sample procurement records are invented. They must not be treated as real procurement evidence or allegations." : "Historical subset: verify the archived source and publisher. Review signals are not allegations."}</p><a href={MATERIALS_URL} target="_blank" rel="noreferrer">Open BeiSawa materials <Icon name="external" size={13} /></a></div>
+            <div className="governance-bottom"><span>DEMO DATA NOTICE</span><p>{provenanceUnknown ? "Data provenance is unavailable. Verify the source before treating records as procurement evidence." : syntheticData ? "All sample procurement records are invented. They must not be treated as real procurement evidence or allegations." : "Historical subset: verify the archived source and publisher. Review signals are not allegations."}</p><a href={MATERIALS_URL} target="_blank" rel="noreferrer">Open BeiSawa materials <Icon name="external" size={13} /></a></div>
           </section>
           <footer className="page-footer"><a href="#top" aria-label="BeiSawa home"><BrandLogo compact /></a><span>Built for governance review <b>·</b> Nairobi, Kenya</span></footer>
         </div>

@@ -1,4 +1,4 @@
-import type { AuditEvent, DraftReceipt, Health, ReviewResult, Tender } from "@/lib/types";
+import type { AuditEvent, DraftReceipt, FiledReport, Health, ReviewResult, Tender } from "@/lib/types";
 
 async function readJson<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => ({}));
@@ -51,4 +51,12 @@ export async function getAudit(): Promise<AuditEvent[]> {
 export async function getDrafts(): Promise<DraftReceipt[]> {
   const result = await readJson<{ items: DraftReceipt[] }>(await fetch("/api/v1/drafts", { cache: "no-store" }));
   return result.items;
+}
+
+export async function getFiledReports(): Promise<FiledReport[]> {
+  const result = await readJson<{ items: FiledReport[] }>(await fetch("/api/v1/filed-reports", { cache: "no-store" }));
+  return result.items;
+}
+export async function getFiledReport(id: string): Promise<FiledReport> {
+  return readJson(await fetch(`/api/v1/filed-reports/${encodeURIComponent(id)}`, { cache: "no-store" }));
 }

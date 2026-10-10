@@ -8,6 +8,7 @@ import os
 from typing import Any, AsyncIterator
 from uuid import uuid4
 
+from beisawa.ollama_connection import ollama_headers
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
@@ -54,7 +55,7 @@ async def ollama_health() -> dict[str, Any]:
     is_qwen_family = settings.ollama_model.casefold().startswith("qwen2.5:")
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(3.0, connect=1.0)) as client:
-            response = await client.get(f"{settings.ollama_base_url}/api/tags")
+            response = await client.get(f"{settings.ollama_base_url}/api/tags", headers=ollama_headers(settings))
             response.raise_for_status()
         payload = response.json()
         models = payload.get("models", [])

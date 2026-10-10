@@ -53,3 +53,20 @@ The MCP write action validates and saves a local draft. The Neon API stores priv
 The engine writes completed MCP and model calls to scratch JSONL with request ids, inputs/outputs, timestamps, and durations. For hosted reviews/drafts it returns only the current server-generated request's events to the Neon API, which persists them under the verified reviewer's identity. The engine's aggregate audit endpoint is disabled in hosted mode. Because retrieval outputs are included, events may contain full source-record fields. Human decision and filing events are also stored transactionally in Neon. This is not tamper-proof or independently retained. Do not connect personal or sensitive procurement records until data classification, redaction, and retention are designed. `var/` is local scratch space excluded from Git; Authenticated production persistence and approval remain unverified. See [deployment](docs/deployment.md).
 
 Compose builds and a genuine local Qwen 3B tool loop are verified. Planning uses compact state summaries and exposes only discovered tools whose prerequisites are satisfied, preventing repeated searches once results exist. Web/Function deadlines are 250/240 seconds for bounded CPU inference. Fresh registry pull, empty-volume recovery and hosted Qwen remain unverified. If Frankfurt demo hosting remains the plan, disclose that region; no in-country residency claim is made. See the requirements and evaluation status for the exact verification boundary.
+
+## Filed-report reading and desktop inference
+
+The desk loads records, health and audit independently so an auxiliary failure
+does not discard records. A private report reader uses the session-authenticated
+web proxy and owner-scoped Neon detail API. Detail and JSON export verify the
+canonical snapshot hash and approval binding before returning content. Printing
+uses the same read-only snapshot; no external submission is implied.
+
+For the owner's selected desktop model hosting, Render sends an HTTPS bearer
+secret to a named Cloudflare tunnel. The tunnel targets the loopback gateway on
+port 11435; native Ollama remains on port 11434. The gateway exposes only tags
+and bounded, non-streaming chat for one model, never forwards the bearer secret,
+and serializes inference. Its token is stored encrypted for the Windows user
+and entered securely in Render. No browser or Neon configuration needs that
+secret. Local authorization/limit tests pass; desktop/tunnel deployment remains
+unverified. See `docs/local-qwen.md`.

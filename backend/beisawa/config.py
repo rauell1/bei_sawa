@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
@@ -19,6 +19,7 @@ class Settings:
     llm_mode: str
     mcp_filesystem_command: str | None
     data_file: Path | None = None
+    ollama_api_key: str | None = field(default=None, repr=False)
 
 
 @lru_cache(maxsize=1)
@@ -37,6 +38,7 @@ def get_settings() -> Settings:
         audit_path=audit_path,
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/"),
         ollama_model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b"),
+        ollama_api_key=os.getenv("OLLAMA_API_KEY") or None,
         llm_mode=os.getenv("BEISAWA_LLM_MODE", "ollama").strip().lower(),
         mcp_filesystem_command=os.getenv("MCP_FILESYSTEM_COMMAND"),
         data_file=Path(os.environ["BEISAWA_DATA_FILE"]).expanduser().resolve() if os.getenv("BEISAWA_DATA_FILE") else None,
