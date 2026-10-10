@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { BrandLogo } from "./brand-logo";
 import { ApprovalPanel } from "./approval-panel";
 import { authClient } from "@/lib/auth/client";
 import { getDrafts } from "@/lib/api";
@@ -258,8 +259,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
     <div className="app-shell">
       <aside className={`sidebar ${mobileNavOpen ? "sidebar-open" : ""}`}>
         <a className="brand" href="#top" aria-label="BeiSawa home" onClick={() => setMobileNavOpen(false)}>
-          <span className="brand-mark"><span /><span /><span /></span>
-          <span className="brand-word">bei<span>sawa</span><small>VALUE FOR MONEY</small></span>
+          <BrandLogo inverse />
         </a>
         <div className="nav-label">WORKSPACE</div>
         <nav className="primary-nav" aria-label="Main navigation">
@@ -440,7 +440,7 @@ export default function Home({ localPreview = false }: { localPreview?: boolean 
             </div>
             <div className="governance-bottom"><span>DEMO DATA NOTICE</span><p>{syntheticData ? "All sample procurement records are invented. They must not be treated as real procurement evidence or allegations." : "Historical subset: verify the archived source and publisher. Review signals are not allegations."}</p><a href={MATERIALS_URL} target="_blank" rel="noreferrer">Open BeiSawa materials <Icon name="external" size={13} /></a></div>
           </section>
-          <footer className="page-footer"><span>BEISAWA <b>·</b> FAIR PRICE, WITH EVIDENCE</span><span>Built for governance review <b>·</b> Nairobi, Kenya</span></footer>
+          <footer className="page-footer"><a href="#top" aria-label="BeiSawa home"><BrandLogo compact /></a><span>Built for governance review <b>·</b> Nairobi, Kenya</span></footer>
         </div>
       </main>
     </div>
