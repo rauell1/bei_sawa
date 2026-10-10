@@ -1,0 +1,16 @@
+.logo { display: inline-flex; align-items: center; gap: 10px; color: #193b2e; }
+.mark { display: block; width: 44px; height: 44px; flex: 0 0 44px; }
+.check { stroke: #81a889; }
+.wordmark { display: block; font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+.wordmark small { display: block; margin-top: 9px; font: 7px var(--sans); font-weight: 600; letter-spacing: 1.7px; white-space: nowrap; }
+.inverse { color: #f2f6f1; }
+.inverse .check { stroke: #a8d8bd; }
+.inverse .wordmark small { color: #b3cbbd; }
+@media (min-width: 621px) and (max-width: 920px) {
+  .inverse .wordmark { display: none; }
+  .inverse .mark { width: 36px; height: 36px; flex-basis: 36px; }
+}
+
+.compact .mark { width: 26px; height: 26px; flex-basis: 26px; }
+.compact .wordmark { font-size: 20px; }
+.compact .wordmark small { display: none; }

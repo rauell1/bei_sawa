@@ -1,3 +1,4 @@
+import { BrandLogo } from "../brand-logo";
 import Link from "next/link";
 import evidence from "../../public/evidence/qwen-2026-10-09.json";
 import styles from "./page.module.css";
@@ -7,7 +8,7 @@ export const metadata = { title: "Recorded Qwen review · BeiSawa" };
 export default function Demo() {
   const run = evidence.review;
   return <main className={styles.page}>
-    <header><div className="section-kicker">BEISAWA · RECORDED MODEL RUN</div>
+    <header><Link className="auth-brand" href="/login" aria-label="BeiSawa sign in"><BrandLogo /></Link><div className="section-kicker">RECORDED MODEL RUN</div>
       <h1>A cited review, with its tool choices</h1>
       <p>This is a recording of a genuine local Qwen run on an invented clinic-roofing record. It is public and requires no account.</p>
       <p><strong>Synthetic data · 9 October 2026 · recorded playback</strong></p>

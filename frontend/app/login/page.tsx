@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BrandLogo } from "../brand-logo";
 import { authClient } from "@/lib/auth/client";
 
 export default function Login() {
@@ -33,7 +34,7 @@ export default function Login() {
     } finally { setPending(false); }
   }
   return <main className="auth-page"><section className="auth-card">
-    <div className="section-kicker">BEISAWA · FAIR PRICE, WITH EVIDENCE</div>
+    <a className="auth-brand" href="/demo" aria-label="BeiSawa public demo"><BrandLogo /></a>
     <h1>{recover ? "Reset your password" : register ? "Create your reviewer account" : "Sign in to your review desk"}</h1>
     <p>Your review drafts are private to your account. The demo records are synthetic.</p>
     <form onSubmit={submit}>
