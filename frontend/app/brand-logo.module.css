@@ -1,10 +1,9 @@
+@font-face { font-family: "BeiSawa Wordmark"; src: url("/brand/DejaVuSans-Bold.ttf") format("truetype"); font-style: normal; font-weight: 700 800; font-display: swap; }
 .logo { display: inline-flex; align-items: center; gap: 10px; color: #193b2e; }
 .mark { display: block; width: 44px; height: 44px; flex: 0 0 44px; }
-.check { stroke: #81a889; }
-.wordmark { display: block; font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+.wordmark { display: block; font-family: "BeiSawa Wordmark", var(--display); font-size: 28px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
 .wordmark small { display: block; margin-top: 9px; font: 7px var(--sans); font-weight: 600; letter-spacing: 1.7px; white-space: nowrap; }
 .inverse { color: #f2f6f1; }
-.inverse .check { stroke: #a8d8bd; }
 .inverse .wordmark small { color: #b3cbbd; }
 @media (min-width: 621px) and (max-width: 920px) {
   .inverse .wordmark { display: none; }

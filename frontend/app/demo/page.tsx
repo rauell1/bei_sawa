@@ -3,7 +3,7 @@ import Link from "next/link";
 import evidence from "../../public/evidence/qwen-2026-10-09.json";
 import styles from "./page.module.css";
 
-export const metadata = { title: "Recorded Qwen review · BeiSawa" };
+export const metadata = { title: "Recorded Qwen review", alternates: { canonical: "/demo" } };
 
 export default function Demo() {
   const run = evidence.review;

@@ -410,3 +410,5 @@ h1, h2, h3, h4, p { margin-top: 0; }
 .saved-drafts span { font-size: 12px; }
 
 .auth-brand { display: inline-flex; margin-bottom: 24px; }
+
+.auth-card .auth-switch { margin-right: 14px; margin-top: 12px; }

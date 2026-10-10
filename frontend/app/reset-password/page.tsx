@@ -15,13 +15,13 @@ export default function ResetPassword() {
     if (newPassword !== fields.get("confirm")) { setMessage("Passwords do not match."); setPending(false); return; }
     try {
       const { error } = await authClient.resetPassword({ newPassword, token });
-      if (error) throw new Error(error.message || "The reset link is invalid or expired.");
-      setToken(""); setMessage("Password updated. You can sign in now.");
+      if (error) throw new Error(error.message || "This BeiSawa reset link is invalid or expired. Request a new link from sign-in.");
+      setToken(""); setMessage("Your BeiSawa password has been updated. Sign in with your new password.");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Password could not be updated."); }
     finally { setPending(false); }
   }
   return <main className="auth-page"><section className="auth-card"><a className="auth-brand" href="/login" aria-label="BeiSawa sign in"><BrandLogo /></a><h1>Choose a new password</h1>
-    {!token && !message && <p>Open the reset link from your email to continue.</p>}
+    {!token && !message && <p>Open the BeiSawa password reset link from your email. If the link is missing or expired, request another from sign-in.</p>}
     {token && <form onSubmit={submit}>
       <label>New password<input type="password" name="password" autoComplete="new-password" required minLength={8} maxLength={128} /></label>
       <label>Confirm password<input type="password" name="confirm" autoComplete="new-password" required minLength={8} maxLength={128} /></label>
