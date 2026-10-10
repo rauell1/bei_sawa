@@ -165,7 +165,7 @@ export function createApi(services: Services) {
         const { rows } = await services.db.query("SELECT object_key FROM beisawa_drafts WHERE draft_id = $1 AND owner_id = $2", [id, owner]);
         if (!rows[0]) throw new HttpError(404, "Draft not found");
         return new Response(await services.objects.get(rows[0].object_key), { headers: {
-          "Content-Type": "application/json", "Content-Disposition": `attachment; filename="${id}.json"`, "Cache-Control": "no-store",
+          "Content-Type": "application/json", "Content-Disposition": `attachment; filename="beisawa-${id}.json"`, "Cache-Control": "no-store",
         } });
       }
       if (path === "/api/v1/approval-policy" && request.method === "GET") {

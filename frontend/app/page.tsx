@@ -4,6 +4,7 @@ import { authConfigured, getAuth, isLocalPreview } from "@/lib/auth/server";
 import Desk from "./desk";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Review desk", alternates: { canonical: "/" } };
 export default async function Home() {
   if (isLocalPreview()) return <Desk localPreview />;
   if (!authConfigured()) return <main className="auth-page"><section className="auth-card"><div className="auth-brand"><BrandLogo /></div><h1>BeiSawa is being configured</h1><p>The review desk will be available once sign-in is connected.</p></section></main>;

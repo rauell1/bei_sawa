@@ -204,3 +204,7 @@ docker compose exec -T api python - < scripts/evaluate_qwen.py > docs/evidence/q
 Check the command exits successfully and the artifact is complete before adding
 it to source control. It rejects stub and abstained reviews. The local stack
 cannot demonstrate production Neon approval. No public recording is shipped yet.
+
+## Email branding
+
+The selected provider is Resend, with intended sender **BeiSawa <info@rauell.systems>**. See [communications setup](communications.md) for domain verification, Neon custom SMTP and the current template-customization boundary. Website changes do not reconfigure Neon email delivery.
