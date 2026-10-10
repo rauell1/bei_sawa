@@ -2,7 +2,7 @@
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
-> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The owner supplied the officer identity; its production registry and approval workflow still need deployment and verification. Historical energy/solar data and authenticated evaluator workflow verification remain required. Roy is designated as both officer and evaluator using his existing account. A 35-second recorded-run browser walkthrough is included; the final challenge demo still needs production verification. One genuine Qwen 3B run is recorded and available at the public `/demo` route; see EVALS and [`docs/approval.md`](docs/approval.md).
+> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The owner supplied the officer identity and reported deploying its production registry; the live approval workflow still needs verification. Filed reports now have authenticated reading, printing and JSON export. Historical energy/solar data and authenticated evaluator workflow verification remain required. Roy is designated as both officer and evaluator using his existing account. A 35-second recorded-run browser walkthrough is included; the final challenge demo still needs production verification. One genuine Qwen 3B run is recorded and available at the public `/demo` route; see EVALS and [`docs/approval.md`](docs/approval.md).
 
 > **Synthetic data notice:** The bundled records are invented for demonstration. Nothing in this repository is a claim about a real tender, supplier, or person. “No automated signal” is not assurance of value or compliance.
 
@@ -48,7 +48,7 @@ Function API, Neon Postgres for reviewer records/activity, and private Neon Obje
 Storage for saved drafts. The Python/MCP review engine runs as a separate service
 and independently verifies Neon JWTs. The planned web domain is
 `https://beisawa.rauell.systems`. See [deployment instructions](docs/deployment.md)
-for the exact environment variables, migration, and live validation checklist.
+for the exact environment variables, migration, and live validation checklist. The owner chose computer-hosted Qwen; [Windows Ollama gateway and tunnel setup](docs/local-qwen.md) connects that computer to Render without exposing native Ollama.
 
 ```bash
 npm run typecheck:neon
@@ -66,7 +66,7 @@ These local integration checks are not evidence of a successful remote deploymen
 - **Challenge:** African Agentic AI Design Challenge; Governance track, “The Bid Box Challenge”; theme “Value for money”. Organiser spelling and official submission cutoff still need confirmation.
 - **Owner:** Roy Okola Otieno · rauell.systems · Nairobi, Kenya.
 - **Proposed workflow:** retrospective review for a county internal audit or procurement office. No office partnership or practitioner interview is claimed.
-- **Domain:** `beisawa.rauell.systems`; deployment and DNS are not configured.
+- **Domain:** `beisawa.rauell.systems`; hosted sign-in and review desk were observed by the owner. Authenticated end-to-end production verification is still required.
 - **Repository:** [rauell1/bei_sawa](https://github.com/rauell1/bei_sawa). The repository is public; the current working branch is not a deployed demo.
 - **Deadline:** 15 October 2026, as supplied by the owner; cutoff time and timezone have not been confirmed.
 - **Evaluator:** Roy Okola Otieno uses the existing officer account; authenticated production workflow remains unverified. The public demo includes a 35-second recorded-run walkthrough.

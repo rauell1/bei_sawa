@@ -1,6 +1,7 @@
 """Constrained Qwen tool choice. Untrusted evidence never supplies executable args."""
 import json
 import time
+from beisawa.ollama_connection import ollama_headers
 import httpx
 from beisawa.audit import get_audit_logger
 from beisawa.ollama import ModelOutputError, ModelUnavailableError
@@ -23,7 +24,7 @@ async def choose_tool(context: dict, tools: list[dict], *, settings, request_id:
     output = None
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(150, connect=4)) as client:
-            response = await client.post(f"{settings.ollama_base_url}/api/chat", json=payload)
+            response = await client.post(f"{settings.ollama_base_url}/api/chat", json=payload, headers=ollama_headers(settings))
             response.raise_for_status()
         output = json.loads(response.json()["message"]["content"])
         if not isinstance(output, dict) or set(output) != {"tool", "reason"} or output["tool"] not in names or not isinstance(output["reason"], str) or not 0 < len(output["reason"]) <= 500:

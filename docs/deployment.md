@@ -120,7 +120,7 @@ Give it a writable runtime directory and sufficient resources for its processes.
 It does not need database/S3 credentials; they remain in Neon. Public HTTPS and
 access to Neon's JWKS endpoint are required. Do not expose an unauthenticated
 alternate engine route. Model unavailability is reported as an error, never a
-silent substitution with stub output. Real Qwen inference remains unverified.
+silent substitution with stub output. Hosted Qwen inference remains unverified; a genuine local run is recorded in EVALS.
 
 ## Live validation required before merge
 
@@ -176,7 +176,7 @@ model pull and engine. Dockerfiles support an optional `proxy_ca` build secret
 for verified TLS behind managed proxies. This is not a production Neon approval
 stack and cannot validate named officer authorization.
 
-The current free Render service uses the test stub. A real local Qwen recording
+The last observed free Render configuration uses the test stub. A real local Qwen recording
 does not convert that deployed service to real inference. Hosting Qwen needs an
 accessible Ollama instance configured with `OLLAMA_BASE_URL`/`OLLAMA_MODEL`, enough
 memory/CPU, and measured review latency within the Function/proxy limits. Do not
@@ -194,7 +194,7 @@ This alternative has been built and its Ollama service started here. It does not
 prove inference: the Qwen weights download was blocked at the registry's R2
 redirect by the managed proxy. The default full GPU image exceeded available VFS
 writable-layer space. Neither failure was bypassed by disabling verification.
-After a complete model startup, record an actual run through Compose's internal
+A subsequent genuine run with checksum-verified imported weights is recorded in EVALS. To record another actual run through Compose's internal
 web API (the API service has access to both `web` and `ollama`):
 
 ```bash
@@ -203,8 +203,24 @@ docker compose exec -T api python - < scripts/evaluate_qwen.py > docs/evidence/q
 
 Check the command exits successfully and the artifact is complete before adding
 it to source control. It rejects stub and abstained reviews. The local stack
-cannot demonstrate production Neon approval. No public recording is shipped yet.
+cannot demonstrate production Neon approval. The public `/demo` includes the recorded synthetic run and a 35-second walkthrough; these do not demonstrate production approval.
 
 ## Email branding
 
 The selected provider is Resend, with intended sender **BeiSawa <info@rauell.systems>**. See [communications setup](communications.md) for domain verification, Neon custom SMTP and the current template-customization boundary. Website changes do not reconfigure Neon email delivery.
+
+## Complete the reviewer workspace deployment
+
+Deploy the latest Neon Function to enable filed-report detail/download, and
+redeploy Vercel to expose the reader. No new Vercel environment variables or
+schema migration are required by the reader revision. Verify as Roy: select a
+record, review, save, approve the exact revision, file, open the filed report,
+print and download JSON. Verify another account receives 404 for that report,
+including its download. Owner-reported Function deployment is not evidence
+that this new revision or these authenticated actions succeeded.
+
+For Qwen on the owner's computer, follow [Windows gateway setup](local-qwen.md).
+Render must run this revision for `OLLAMA_API_KEY` support. Enter the gateway
+secret only in Render and the encrypted local helper; never in Vercel, source
+control or chat. Desktop inference, historical data quality and the live human
+gate remain production checks before claiming readiness.

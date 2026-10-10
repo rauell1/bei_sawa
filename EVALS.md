@@ -1,6 +1,6 @@
 # Evaluation plan and observed prototype results
 
-**Latest verification: 9 October 2026.** 40 Python tests and 13 Neon API tests pass; frontend production build and Neon TypeScript checks pass. A genuine Qwen 2.5 3B review completed through Compose web → Python → MCP → Ollama in **98.554 seconds**, followed by a 0.018-second draft save. The [complete recorded run](frontend/public/evidence/qwen-2026-10-09.json) includes model digest, source, citations, tool choices and request-scoped audit. `/demo` displays this synthetic run without login. Historical-data evaluation, hosted Qwen and production approval/evaluator access remain pending. Earlier results below are historical, not the current inference status.
+**Latest verification: 10 October 2026.** 43 Python tests and 14 Neon API tests pass; frontend production build and Neon TypeScript checks pass. A genuine Qwen 2.5 3B review completed through Compose web → Python → MCP → Ollama in **98.554 seconds**, followed by a 0.018-second draft save. The [complete recorded run](frontend/public/evidence/qwen-2026-10-09.json) includes model digest, source, citations, tool choices and request-scoped audit. `/demo` displays this synthetic run without login. Historical-data evaluation, hosted Qwen and production approval/evaluator access remain pending. Earlier results below are historical, not the current inference status.
 
 **Initial fixture baseline, 8 October 2026.** BeiSawa is a procurement-record triage prototype, not an award recommendation or compliance system. Every bundled record is invented and labelled synthetic. The scenarios below define checks for the current fixtures; passing them is not evidence that the app performs well on public or real procurement data.
 
@@ -110,3 +110,24 @@ The final Python suite is **40 passed**, Neon suite **13 passed**. The missing-m
 ## Public recorded-run walkthrough
 
 `/demo` builds as a static public route with no Neon credential dependency. A real headless Chromium browser loaded it without a session and displayed the actual record, citations, model note and choices. The 35-second MP4 browses that page at 1280×900; it is labelled recorded playback, not an unaltered live-inference video or production approval demonstration. The JSON remains the complete run evidence. Production challenge-video requirements still need checking against the original rules.
+
+## Reviewer workspace and desktop gateway — 10 October 2026
+
+Owner-scoped filed-report detail and JSON download reject other owners with 404
+and altered canonical snapshots with 409. The new API test exercises both
+ordinary access and download, using embedded Postgres and signed test JWTs.
+The web workspace lists filed reports and provides an authenticated reader with
+BeiSawa branding, exact hash, named approval, citations, printing and JSON export.
+Records are retained when separate status/audit requests fail; unavailable
+provenance is labelled rather than inferred. Approval loading errors do not
+present a false lack of authority. These UI paths compile; authenticated
+production reading/printing has not yet been exercised.
+
+The owner chose Windows-hosted Ollama. Three gateway tests exercise missing/wrong
+secrets, narrow routes and model, fixed loopback forwarding without credentials,
+request size and output/context caps, upstream error handling and HTTPS secret
+transport. Omitted limits receive bounded defaults. These use a fake model, not
+new inference evidence. Full Python suite: 43 passed; Neon API: 14 passed; Neon
+TypeScript checks and Next.js production build pass. See `docs/local-qwen.md`.
+The Windows encryption helper, Cloudflare tunnel and Render connection still
+require execution on the owner's computer and production verification.

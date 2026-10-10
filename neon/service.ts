@@ -216,6 +216,20 @@ export function createApi(services: Services) {
         });
         return json(result);
       }
+      const filedMatch = path.match(/^\/api\/v1\/filed-reports\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/);
+      if (filedMatch && request.method === "GET") {
+        const { rows } = await services.db.query("SELECT * FROM beisawa_filed_reports WHERE report_id=$1 AND owner_id=$2", [filedMatch[1], owner]);
+        const report = rows[0];
+        if (!report) throw new HttpError(404, "Filed report not found");
+        if (contentHash(report.snapshot) !== report.content_hash || report.approval?.decision !== "approve" ||
+            report.approval.content_hash !== report.content_hash || report.approval.owner_id !== owner || report.approval.draft_id !== report.draft_id) {
+          throw new HttpError(409, "Filed report integrity check failed");
+        }
+        if (url.searchParams.get("download") === "1") return new Response(JSON.stringify(report, null, 2), { headers: {
+          "Content-Type": "application/json", "Content-Disposition": `attachment; filename="beisawa-report-${report.report_id}.json"`, "Cache-Control": "no-store",
+        } });
+        return json(report);
+      }
       if (path === "/api/v1/filed-reports" && request.method === "GET") {
         const { rows } = await services.db.query("SELECT * FROM beisawa_filed_reports WHERE owner_id=$1 ORDER BY created_at DESC LIMIT 100", [owner]);
         return json({ items: rows });

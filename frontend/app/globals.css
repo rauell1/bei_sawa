@@ -412,3 +412,18 @@ h1, h2, h3, h4, p { margin-top: 0; }
 .auth-brand { display: inline-flex; margin-bottom: 24px; }
 
 .auth-card .auth-switch { margin-right: 14px; margin-top: 12px; }
+
+.filed-workspace { margin: 32px 0; padding: 24px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+.report-reader { max-width: 960px; margin: 0 auto; padding: 40px 24px; line-height: 1.65; }
+.report-reader header, .report-reader section { margin-bottom: 24px; padding: 28px; background: white; border: 1px solid var(--line); border-radius: 12px; }
+.report-reader h1 { font-size: 30px; line-height: 1.25; }
+.report-reader dt { font-weight: 700; margin-top: 12px; }
+.report-reader dd { margin-left: 0; overflow-wrap: anywhere; }
+.report-reader code { overflow-wrap: anywhere; }
+.report-reader article { border-top: 1px solid var(--line); padding: 16px 0; break-inside: avoid; }
+@media print {
+  .report-reader { max-width: none; padding: 0; font-size: 11pt; color: black; }
+  .report-reader .no-print { display: none; }
+  .report-reader header, .report-reader section { padding: 12px 0; border: 0; }
+  .report-reader header { border-bottom: 1px solid #bbb; }
+}
