@@ -5,7 +5,12 @@ export const maxDuration = 300;
 const allowed = /^(health|tenders|reviews|drafts(?:\/draft-[a-f0-9]{32}(?:\/(decision|file|status))?)?|audit|approval-policy|filed-reports(?:\/[a-f0-9-]{36})?)$/;
 async function handle(request: Request, context: { params: Promise<{ path: string[] }> }) {
   const origin = request.headers.get("origin");
-  if (request.method === "POST" && origin && origin !== new URL(request.url).origin) {
+  const requestUrl = new URL(request.url);
+  // Next may reconstruct a local URL with localhost while the browser uses
+  // 127.0.0.1. Host is browser-controlled by navigation, unlike custom headers.
+  const expectedOrigin = request.headers.get("host")
+    ? `${requestUrl.protocol}//${request.headers.get("host")}` : requestUrl.origin;
+  if (request.method === "POST" && origin && origin !== expectedOrigin) {
     return Response.json({ detail: "Cross-origin requests are not allowed" }, { status: 403 });
   }
   const { path } = await context.params;

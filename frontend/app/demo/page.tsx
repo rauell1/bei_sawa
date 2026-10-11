@@ -14,6 +14,8 @@ export default function Demo() {
       <p><strong>Synthetic data · 9 October 2026 · recorded playback</strong></p>
       <p>Production approval and filing were not exercised. This single run does not measure accuracy on real tenders.</p>
       <nav><Link href="/login">Open the private review desk</Link><a href="/evidence/qwen-2026-10-09.json" download>Download the complete run and audit</a></nav>
+      <p><a href="/evidence/qwen-live-2026-10-11.mp4">Watch the continuous 126-second live Qwen run</a>: actual tool calls, cited report, draft handover and altered-report refusal. Local synthetic workflow; production approval not exercised. <a href="/evidence/qwen-live-2026-10-11.json">Download its evidence</a>.</p>
+      <p><Link href="/demo/run">Run the live demonstration in your authenticated workspace</Link>.</p>
       <p><a href="/evidence/qwen-walkthrough.mp4">Watch the 35-second recorded-run walkthrough</a>. This video browses the evidence below; it is not a recording of live inference or production approval.</p>
     </header>
     <section><h2>Run evidence</h2>

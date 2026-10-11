@@ -66,6 +66,7 @@ export type ModelNotes = {
 };
 
 export type ReviewResult = {
+  abstained?: boolean;
   review_id: string;
   record_key: string;
   ocid: string;

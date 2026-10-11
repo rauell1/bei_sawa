@@ -5,6 +5,7 @@ from langgraph.graph import StateGraph, START, END
 from beisawa.ollama import create_review_notes
 from beisawa.planner import choose_tool
 from beisawa.data import split_record_key
+from beisawa.mcp_client import MCPToolError
 
 ALLOWED = {"search_tenders", "get_tender_record", "analyze_value_for_money", "draft_review_memo"}
 MAX_STEPS = 8
@@ -81,7 +82,17 @@ async def run_tool_loop(record_key, *, gateway, settings, request_id, chooser=ch
             args = {"record_key": record_key}
         else:
             args = {"record_key": record_key, "report_json": json.dumps(state["report"])}
-        result = await gateway.call("bei_sawa", tool, args, request_id=request_id)
+        try:
+            result = await gateway.call("bei_sawa", tool, args, request_id=request_id)
+        except MCPToolError:
+            # Only reads can be retried safely; a write may have succeeded before
+            # its reply was lost. MCPGateway already logs the failed call.
+            if tool == "draft_review_memo":
+                raise
+            return {**update, "feedback": "Read tool failed. Retry a scoped read or abstain; the step budget still applies.",
+                    "trace": trace + [{"step": "tool_failure", "server": "bei_sawa", "tool": tool, "reason": "Read failed; bounded recovery required"}]}
+        if isinstance(result, dict) and result.get("error") == "not_found":
+            raise LookupError("The scoped OCDS source record was not found")
         if isinstance(result, dict) and result.get("error"):
             return {**update, "feedback": "The tool could not supply valid evidence; retrieve again or abstain"}
         if tool == "search_tenders":

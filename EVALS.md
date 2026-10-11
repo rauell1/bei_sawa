@@ -1,6 +1,6 @@
 # Evaluation plan and observed prototype results
 
-**Latest verification: 10 October 2026.** 43 Python tests and 14 Neon API tests pass; frontend production build and Neon TypeScript checks pass. A genuine Qwen 2.5 3B review completed through Compose web → Python → MCP → Ollama in **98.554 seconds**, followed by a 0.018-second draft save. The [complete recorded run](frontend/public/evidence/qwen-2026-10-09.json) includes model digest, source, citations, tool choices and request-scoped audit. `/demo` displays this synthetic run without login. Historical-data evaluation, hosted Qwen and production approval/evaluator access remain pending. Earlier results below are historical, not the current inference status.
+**Latest verification: 11 October 2026.** 45 Python tests and 14 Neon API tests pass; frontend production build and Neon TypeScript checks pass. A genuine Qwen 2.5 3B review completed through Compose web → Python → MCP → Ollama in **98.554 seconds**, followed by a 0.018-second draft save. The [complete recorded run](frontend/public/evidence/qwen-2026-10-09.json) includes model digest, source, citations, tool choices and request-scoped audit. `/demo` displays this synthetic run without login. The new continuous 126-second live-run video and three genuine warmed repeats are recorded below. Hosted Qwen and production approval/evaluator access remain pending. Synthetic data is permitted; historical-data evaluation is optional. Earlier results below are historical, not the current inference status.
 
 **Initial fixture baseline, 8 October 2026.** BeiSawa is a procurement-record triage prototype, not an award recommendation or compliance system. Every bundled record is invented and labelled synthetic. The scenarios below define checks for the current fixtures; passing them is not evidence that the app performs well on public or real procurement data.
 
@@ -36,9 +36,9 @@ Additional tests cover dataset-scoped keys, duplicate references, source-id sear
 - Earlier proxy-denied weights became accessible. Direct Ollama download still failed on redirect DNS; importing the verified official GGUF worked through the configured TLS proxy. The full GPU image exceeded VFS disk; the unchanged upstream CPU binaries ran successfully.
 - Reproduce with `scripts/evaluate_qwen.py` inside the Compose API container, redirecting stdout to a JSON artifact. It rejects stub mode and abstained reviews. This run used local mode and did **not** authenticate to Neon or approve/file a production report.
 
-## Required evaluation before submission or deployment
+## Further production and real-data evaluation
 
-1. Obtain an eligible, documented and licensed historical dataset with dataset/publisher identity, OCIDs, record/release amendments, line-item quantities/specifications/prices and linked budget context. Keep source snapshots and transformation lineage; do not claim efficacy from synthetic fixtures.
+1. Before expanding beyond the permitted synthetic scope, obtain an eligible, documented and licensed historical dataset with dataset/publisher identity, OCIDs, record/release amendments, line-item quantities/specifications/prices and linked budget context. Keep source snapshots and transformation lineage; do not claim efficacy from synthetic fixtures.
 2. Define expected results with procurement practitioners and use a held-out set; report abstentions, false positives/negatives, citation validity, and model review-note issues. Do not describe a small fixture suite as accuracy or savings.
 3. Execute repeated end-to-end Qwen 2.5 runs under a pinned model digest, assess determinism/latency/resource consumption, test unavailable/malformed-model behavior, and inspect prompts, outputs and MCP traces.
 4. Test authenticated named approval against the exact immutable review revision/hash, replay/tampering behavior, and least-privilege worker/filing roles in production. Named officer authorization, hash binding and idempotent filing are implemented and locally tested; separate database worker/filing roles remain absent.
@@ -131,3 +131,69 @@ new inference evidence. Full Python suite: 43 passed; Neon API: 14 passed; Neon
 TypeScript checks and Next.js production build pass. See `docs/local-qwen.md`.
 The Windows encryption helper, Cloudflare tunnel and Render connection still
 require execution on the owner's computer and production verification.
+
+## Challenge-aligned evaluation — 11 October 2026
+
+The supplied brief permits original synthetic data. Historical-data efficacy is
+an optional future evaluation, not a mandatory eligibility prerequisite. The ten
+fixture tasks above are executed assertions, with expected refusal cases kept
+separate from unexpectedly failed model behavior. Full backend suite: **45 pass**;
+Neon API suite: **14 pass**; production build and Neon type check pass. CI repeats
+these fixture/security checks with Python 3.11/Node 22, not real model inference.
+
+A continuous **126-second** browser recording starts an actual Qwen review and
+shows tool calls, cited signals, draft handover and HTTP 422 altered-report
+refusal. Its JSON includes the real 11 review audit events; the separate UI save
+and refusal are also shown. No cuts, acceleration, slides or fabricated calls;
+wall-clock capture cadence is retained. No audio. Model digest matches the
+9 October imported weights. See [video](frontend/public/evidence/qwen-live-2026-10-11.mp4)
+and [evidence](frontend/public/evidence/qwen-live-2026-10-11.json). This local run
+does not authenticate as Roy, approve/file a production report or establish
+in-country hosting. It still requires public YouTube/Vimeo publication.
+
+| Actual task | Expected | Observed outcome |
+|---|---|---|
+| Three repeated full reviews of synthetic record 0001 | Real Qwen, complete cited report, draft handover | **PASS 3/3**; 44.066, 37.879, 36.906 seconds; all HTTP 200. |
+| Alter canonical report title after each repeat | Refuse without accepted draft | **PASS**: HTTP 422 each time. |
+| Review an unknown record key | Explicit absence, no invented record | **PASS**: HTTP 404. |
+| Review incomplete synthetic record 0003 | Retry evidence then abstain | **PASS**: abstained, HTTP 200, 21.948 seconds. |
+| Submit that abstained report as a draft | Refuse incomplete/mutated assessment | **PASS**: HTTP 422. |
+| Explain analysis/drafting choices using the current step | Reason describes the current action | **FAIL, UNFIXED**: Qwen repeats retrieval wording at later steps; see video JSON trace. |
+
+The [complete repeat artifact](frontend/public/evidence/qwen-repeated-2026-10-11.json)
+retains all attempts and failure tasks. Mean review latency **39.617s**, population
+standard deviation **3.171s**, range **36.906–44.066s**. All three canonical report
+hashes match, because those findings are deterministic. That does **not** imply
+identical model wording: prompt/generated token counts were 4816/452, 4819/454,
+4820/456, and the complete notes/choices remain inspectable. The 109-second cold
+recorded workflow is different from warmed repeats; do not substitute warmed
+latencies for cold startup. Sample size is three, one selected complete record;
+this is feasibility/repeat variation, not task accuracy or a held-out benchmark.
+
+**Unfixed failure and next experiment:** explanation quality fails even though
+state-valid tool choices complete the task. Next, test action-specific reason
+schemas and independent reason/state consistency checks on a held-out synthetic
+set, reporting rejected reasons and latency instead of changing this recorded
+trace. No claim of comprehensive prompt-injection resistance is made.
+
+**Cost boundary:** these local Ollama runs make zero paid inference-API calls.
+Latency and Ollama token counts are measured. Electricity, amortized hardware,
+cloud-workspace and production-platform billing are not measured; no total
+monetary cost or cost-saving figure is claimed. Obtain those operator inputs
+before presenting a known total cost per run.
+
+The first new browser attempt exposed a localhost/127.0.0.1 same-origin mismatch
+and produced a real 403 without inference. The proxy now checks the browser's
+Host with the request protocol; the new uninterrupted take succeeds. The failed
+attempt is not relabelled as a model run. Read-tool failure recovery and refusal
+to retry uncertain writes are tested; historical-data conduct tests reject
+active or unreviewed sources and known contact fields.
+
+The updated Python 3.11/Node 22 container images built with pinned dependencies
+and verified TLS. Compose started all services, reused the installed Qwen tag,
+and served HTTP 200 for the live interface, health and four-record search. Health
+reported the actual installed model digest. This run used the retained CPU image,
+a cached model volume, a CA build secret and an isolated port override; a fresh
+empty-volume registry download is not claimed. Native full-stack browser runs
+above exercise the same web proxy, Python/MCP code and real model. Temporary
+Compose resources were stopped after checking them; the weights volume is kept.

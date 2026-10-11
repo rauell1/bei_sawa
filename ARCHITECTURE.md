@@ -1,72 +1,56 @@
-# Current BeiSawa architecture (prototype)
+# BeiSawa architecture
 
-This document describes code on the current working branch, not the audited target production architecture. **The current build is not submission-ready**; see [`docs/requirements.md`](docs/requirements.md).
-
-## Runtime path
+**Governance · Financial services / Value for money.** Retrospective triage of
+published tender and award records for a county internal audit officer, with Makueni County Government as the proposed use case; no partnership is claimed. This is
+the award-history half of the tender cycle: no bid documents, bidder ranking,
+award recommendation or full committee evaluation is claimed. Default data is
+four invented OCDS-shaped records. The supplied brief permits synthetic data.
 
 ```text
-Browser
-  └─ Next.js review desk
-       └─ same-origin session-authenticated /api/v1/* proxy → Neon Function
-            └─ FastAPI
-                 ├─ MCPGateway → BeiSawa stdio MCP server
-                 │    ├─ search_tenders
-                 │    ├─ get_tender_record
-                 │    ├─ analyze_value_for_money
-                 │    └─ draft_review_memo (local draft only)
-                 ├─ MCPGateway → upstream filesystem MCP server (read playbook)
-                 ├─ LangGraph bounded loop: Qwen plan → execute → self-check → repeat/summarize
-                 └─ local JSONL activity log and draft files
+Vercel review desk → Neon session → authenticated Neon Function
+                                      ├─ Postgres: private audit, human gate, filed snapshot
+                                      ├─ private S3-compatible storage: draft bytes
+                                      └─ Render Python → LangGraph → MCP tools → Ollama/Qwen
 ```
 
-The browser uses relative `/api/v1/*` paths; it does not call a browser-local `localhost` backend. FastAPI's lifespan opens one own-server and one filesystem MCP stdio session per API process and reuses those sessions across requests; they are closed on shutdown. Direct workflow tests without an app lifespan create a temporary gateway. MCP child environments are allowlisted rather than copied wholesale from the API process. Hosted requests use Neon sessions/JWTs, Postgres and private Object Storage. Drafts carry portable LangGraph human-interrupt checkpoints persisted in Postgres. The deployed login was observed; authenticated production review/approval is not yet verified.
+Local `docker compose up --build` runs the web, Python/MCP and Qwen services.
+Local preview has no production officer authority; hosted requests verify Neon
+JWTs independently in the web proxy, Function and engine. No browser receives
+storage, database or desktop-inference credentials.
 
-## Data identity and provenance
+| MCP server | Role | Why this boundary exists |
+|---|---|---|
+| Own `bei-sawa-ocds-review` | `search_tenders`, `get_tender_record`, `analyze_value_for_money`, `draft_review_memo` | Reusable source-scoped lookup, deterministic cited checks and a real validated draft write. |
+| Borrowed official filesystem, pinned `2025.8.21` | `read_text_file` loads the review playbook | Reuses its established MCP file-reading and directory-resolution implementation instead of rebuilding it. Upstream MIT notice is retained. |
 
-`backend/beisawa/data/ocds_demo.json` is a small fixture manifest labelled `synthetic_demo_data`. Its current `dataset_id` is `beisawa-synthetic-ocds-demo-v1`. Raw OCDS-shaped records are not rewritten. App-level identity is derived from `(source_id, ocid, record id)` and encoded as a URL-quoted `record_key`; OCID alone is rejected for lookup. This is an internal prototype convention, not a completed multi-publisher ingestion model.
+The borrowed process is directory-scoped, not an OS read-only sandbox. Only its
+read tool is offered by the application. MCP child environments are allowlisted.
 
-The bundled records are invented. They are not real procurement records, suppliers, people, budgets, or findings. The link to the owner's Google Drive folder is just a link; the application does not read or mirror its contents.
+In real-model mode, LangGraph asks Qwen 2.5 to choose state-valid tools, fixes
+record-scoped arguments, executes, checks evidence, and loops for at most eight
+choices. Failed reads may recover within that budget; writes with uncertain
+outcomes are not retried automatically. Thin evidence triggers another retrieval
+then abstention. Final model notes must reference valid citation IDs. Explicit
+stub mode is a labelled test fixture, never an open-weights run.
 
-## Deterministic evidence checks
+Every finding binds dataset ID, OCID, record ID, release ID, JSON Pointer and
+observed value. Draft creation re-resolves citations and recomputes the canonical
+analysis. The two signals are first-award/estimate variance and recorded tenderer
+count; no market-price, budget or invoice source is connected. Historical imports
+require completed, dated records and manual personal-data review. Known contact
+fields are refused; this does not replace inspection of narrative text.
 
-`analysis.py` currently implements two narrow prompts:
+A draft pauses at a LangGraph human interrupt. Neon persists its checkpoint and
+content hash. The authenticated subject must match the named officer registry
+and workspace owner. Approval/rejection binds that exact revision. Internal
+filing checks the immutable approval and snapshot in a serialized transaction;
+retries return the same report. Reading/export verifies ownership and integrity.
+No external procurement action exists, and the model receives no approval tool.
 
-1. Compare a tender estimate to the first award value if both amounts and matching currencies are available; produce a review signal when the first award is more than 10% higher.
-2. Produce a neutral competition-review prompt when a valid tenderer count is below three.
-
-Every signal includes relevant JSON Pointer citations, source id, composite record key, OCID, record id, release id, and observed source value. Missing required fields are surfaced as limitations instead of low-confidence findings. Draft validation resolves each citation against the selected source object and recomputes server-side analysis. This still has material scope gaps: amounts are not normalized across currencies, multiple awards/suppliers and lot-level comparisons are not fully handled, amendments are not preserved in an immutable version store, and no external budget, item-quantity, or market-price data is linked.
-
-“No automated signal found” means only that neither configured rule emitted a signal on the available fields; it does not establish fairness, legality, value, or absence of risk.
-
-## MCP and model behavior
-
-BeiSawa uses the MCP Python SDK client/server protocol for its own stdio server. The own server exposes search, scoped source retrieval, deterministic analysis, and a local citation-validated draft write. The borrowed `@modelcontextprotocol/server-filesystem` package is pinned in the Node manifest to `2026.8.31`; the app invokes it through MCP to read the playbook. The concrete reuse benefit is avoiding a custom implementation of MCP file reading and allowed-directory path resolution. The review workflow does not intentionally call filesystem mutation tools, but the upstream server process is not an OS-level read-only sandbox; its exact effective permissions must be reviewed before deployment.
-
-Ollama mode uses a bounded tool loop: Qwen selects search, retrieval, deterministic analysis, draft, finish or abstain from the discovered MCP inventory. Server code supplies scoped arguments, requires retrieval before analysis and adequate analysis before drafting, and refuses unlisted tools. Self-check retries retrieval on incomplete evidence and abstains when coverage stays thin. Tool choices and reasons are audited. The budget is eight choices. Final notes remain citation-ID validated. Explicit stub mode retains the fixed fixture graph. This does not establish model quality; real-run evidence belongs in EVALS.
-
-## Draft, approval, and filing boundary
-
-The MCP write action validates and saves a local draft. The Neon API stores private bytes, an immutable canonical report hash and snapshot, and a portable LangGraph human-interrupt checkpoint. A named officer's JWT subject must match the operator-maintained registry and draft owner. Approval/rejection is immutable and binds the hash. Filing locks the draft row, checks approval and snapshot, resumes the graph, and inserts one filed snapshot in Postgres; retries return the existing report. No external procurement submission occurs. Legacy unhashed drafts need a new revision. See `docs/approval.md` for setup and limitations, including separate institutional roles and database-administrator access.
-
-## Logs and deployment
-
-The engine writes completed MCP and model calls to scratch JSONL with request ids, inputs/outputs, timestamps, and durations. For hosted reviews/drafts it returns only the current server-generated request's events to the Neon API, which persists them under the verified reviewer's identity. The engine's aggregate audit endpoint is disabled in hosted mode. Because retrieval outputs are included, events may contain full source-record fields. Human decision and filing events are also stored transactionally in Neon. This is not tamper-proof or independently retained. Do not connect personal or sensitive procurement records until data classification, redaction, and retention are designed. `var/` is local scratch space excluded from Git; Authenticated production persistence and approval remain unverified. See [deployment](docs/deployment.md).
-
-Compose builds and a genuine local Qwen 3B tool loop are verified. Planning uses compact state summaries and exposes only discovered tools whose prerequisites are satisfied, preventing repeated searches once results exist. Web/Function deadlines are 250/240 seconds for bounded CPU inference. Fresh registry pull, empty-volume recovery and hosted Qwen remain unverified. If Frankfurt demo hosting remains the plan, disclose that region; no in-country residency claim is made. See the requirements and evaluation status for the exact verification boundary.
-
-## Filed-report reading and desktop inference
-
-The desk loads records, health and audit independently so an auxiliary failure
-does not discard records. A private report reader uses the session-authenticated
-web proxy and owner-scoped Neon detail API. Detail and JSON export verify the
-canonical snapshot hash and approval binding before returning content. Printing
-uses the same read-only snapshot; no external submission is implied.
-
-For the owner's selected desktop model hosting, Render sends an HTTPS bearer
-secret to a named Cloudflare tunnel. The tunnel targets the loopback gateway on
-port 11435; native Ollama remains on port 11434. The gateway exposes only tags
-and bounded, non-streaming chat for one model, never forwards the bearer secret,
-and serializes inference. Its token is stored encrypted for the Windows user
-and entered securely in Render. No browser or Neon configuration needs that
-secret. Local authorization/limit tests pass; desktop/tunnel deployment remains
-unverified. See `docs/local-qwen.md`.
+Completed MCP/model calls retain inputs, outputs, timestamps, durations, failures
+and available token counts. Hosted request logs and human decisions are stored
+privately in Neon; scratch JSONL is local and not tamper-proof. Real-run and
+refusal evidence are in EVALS. Production approval, desktop tunnel and total
+hardware/electricity cost remain unverified. Qwen can run on the owner's computer
+through a secret-protected loopback gateway and HTTPS tunnel; native Ollama is
+never published. See `docs/local-qwen.md` for that separate deployment path.

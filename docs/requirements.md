@@ -1,49 +1,74 @@
-# Implementation and evidence requirements
+# Governance challenge requirements and evidence
 
-Status as of 10 October 2026. This is an implementation inventory, not an organiser
-eligibility decision. `BUILD_PROMPT.md` was not present in this checkout.
+Reviewed **11 October 2026** against the actual owner-supplied page text in
+[`challenge-brief.txt`](challenge-brief.txt). This supersedes the earlier inferred
+requirements. Chosen track: **Governance**; single theme: **Financial services /
+Value for money**. Synthetic data is explicitly allowed. Energy/solar data,
+`benchmark_prices`, `check_budget` and a Postgres MCP server are not mandatory
+items in this brief and must not be claimed as implemented.
 
-| Requirement | Current implementation | Verification / remaining work |
+“Implemented/tested” below describes code and observed checks. Owner confirmation
+of external steps is recorded separately; it is not independent eligibility
+certification. The owner replied “All this is done” to eligibility, dates,
+practitioner contact and public submission steps on 11 October.
+
+## Every mandatory build item
+
+| ID | Brief requirement | Implementation / evidence | Status |
+|---|---|---|---|
+| B1 | Own MCP server, at least 3 distinct tools, one action | Four tools: search, scoped retrieval, deterministic cited analysis, validated draft write. Actual stdio protocol and write/refusal tests; genuine model trace. | Implemented and exercised. |
+| B2 | One borrowed MCP server, one-line reuse reason | Official filesystem server pinned `2025.8.21`; reads playbook. Reuses established MCP file-reading and directory resolution instead of rebuilding it. Explicit MIT metadata and source notice retained. | Implemented and exercised. |
+| B3 | Open-source orchestration | LangGraph bounded plan → execute → self-check loop, plus separate durable human interrupt. | Implemented and tested. |
+| B4 | One full task on open weights | Genuine Qwen 2.5 3B runs: retrieve, analyze, draft, cited notes; recorded model digest and complete audit. No silent stub. | Actual runs recorded on 9 and 11 October. |
+| B5 | Log every action; gate irreversible actions; named approver | MCP/model inputs, outputs, timestamps, duration, errors and available usage. Named authenticated officer approval binds the exact hash before idempotent internal filing. Failed writes are not automatically retried. | Local security tests pass; actual production approval is not independently exercised. |
+| B6 | New work within submission period | Original repository work and AI assistance disclosed in PROVENANCE; commits dated 8–11 October. | Owner confirms external eligibility/steps; official opening/cutoff timestamp absent. Commit dates alone do not prove period eligibility. |
+
+## Every mandatory submission item
+
+| ID | Brief requirement | Implementation / evidence | Status |
+|---|---|---|---|
+| S1 | Public repo, OSI licence, one-command README | Public GitHub repo; MIT source licence; `docker compose up --build`; frozen Node/Python versions, pinned Ollama image, documented resources; CI. | Container builds and cached-model Compose startup checked. Empty-volume registry download remains unverified. |
+| S2 | Public YouTube/Vimeo demo, under 3 minutes, unedited agent run with tools | New continuous 126-second MP4: actual Qwen inference, visible tool calls, cited draft, human handover and altered-report refusal. JSON evidence and video SHA retained. | Artifact prepared. Owner reports external steps done; public YouTube/Vimeo URL not supplied. Repository MP4 alone is insufficient. Old 35-second playback is not the required demo. |
+| S3 | Around 300 words: what/theme/institution/workflow | SUBMISSION.md, around 315 words; Governance / Value for money; Makueni internal audit as proposed use case, no adoption claim. | Written to implemented scope. Practitioner contact owner-reported, notes absent. |
+| S4 | One-page ARCHITECTURE.md, shape/built vs borrowed/why | Concise diagram, MCP table, bounded loop, citations, human gate, data/log/hosting boundaries. | Updated. |
+| S5 | EVALS: 8+ tasks, pass/fail, one unfixed failure and next attempt | Ten fixture tasks; real repeat/refusal tasks; authentication/hash/tamper tests. Explicit unfixed model-reason failure and next experiment. | Observed outcomes and verification limits recorded. |
+
+## Rules and data conduct
+
+- The agent prepares files; it cannot award, rank, exclude, cancel or externally
+  submit a procurement. Model tool inventory includes no approval or filing action.
+- Source-backed signals use dataset/OCID/record/release identity and JSON Pointers.
+  Canonical recomputation rejects unsourced or altered report content.
+- Default records are invented and contain no actual supplier/person data.
+  Historical loading/import rejects active processes, future/undated awards,
+  missing manual personal-data review and known contact fields. The tripwire is
+  not a detector for names buried in prose; manual review remains necessary.
+- Age 18+, Africa residence, team <=3, organiser/family exclusions, one project
+  and one theme are external eligibility rules. The owner confirms completion;
+  no identity document or independent verification is stored in public source.
+- The page displays “15th October” but separately says opening/closing TBC.
+  Establish the exact organiser timestamp and stop commits before it; never push
+  post-cutoff fixes to the submitted repository. AI assistance is disclosed.
+- Code is MIT. Qwen weights retain their research licence. No actual cost savings,
+  complete bid evaluation, institutional partnership or data residency is claimed.
+
+## Judging criteria: implemented evidence versus remaining limits
+
+| Criterion | Evidence | Honest limit |
 |---|---|---|
-| Procurement review workflow | Next.js desk; source-scoped record selection; deterministic estimate and competition checks; cited notes | Synthetic fixtures only. No practitioner validation or complete tender assessment. |
-| Own MCP server, 3+ tools, write tool | `search_tenders`, `get_tender_record`, `analyze_value_for_money`, `draft_review_memo` | Python protocol tests pass. Write action creates validated local drafts, never procurement decisions. |
-| Borrowed MCP server | Pinned filesystem server reads review playbook | Reuse reason documented; subprocess is path-scoped, not an OS security sandbox. No Postgres MCP server is claimed. |
-| Agentic LangGraph loop | Ollama mode discovers MCP tools; Qwen chooses tools; server scopes arguments; eight-choice budget; evidence retry then abstention | Fake-planner control-flow tests pass. One genuine Qwen 3B trace is recorded; its choice reasons sometimes repeat. Stub mode retains the fixture graph. |
-| Open-weights task | Qwen 2.5 via Ollama, JSON choice/note validation | One real synthetic review: 98.554 seconds; imported model digest and audit recorded. Script `scripts/evaluate_qwen.py` records actual runs and rejects stubs/incomplete reviews. |
-| Exact source identity | Dataset id + OCID + record id; JSON Pointer citations; canonical draft validation | Fixture tests pass. Historical source/archive validation still required. |
-| Human approval gate | LangGraph `interrupt` after draft; portable checkpoint persisted in Neon; immutable canonical report hash; authenticated approve/reject | Local checkpoint and API tests pass. Owner supplied officer identity; local registry saved. Owner reports production registry deployment; live gate remains unverified. Client names/booleans never confer authority. |
-| Distinct filed reports | Serialized Neon transaction checks exact approval and snapshot, resumes graph, inserts one internal filed report; authenticated list/reader, print and JSON export | Retry/restart and rejection/tamper tests pass against embedded Postgres. No external filing integration or separate institutional filing role. |
-| Auth/storage/database | Neon session proxy; verified JWT in Function and engine; private object bucket; owner-scoped tables | Owner successfully deployed Neon infrastructure and migrations; hosted domain renders login. Authenticated end-to-end persistence and approval need verification. |
-| Historical Kenya energy/solar data | Provenance-preserving import script; configurable dataset; closed/datetime/currency filters; archive SHA | No real data imported. Need verified source, publisher, redistribution licence and source archive. Registry metadata reachable; Makueni archive redirect remains blocked at Fastly. Synthetic fixtures remain the default. |
-| Deterministic assessment | First-award estimate comparison and recorded tenderer count | No `benchmark_prices`, `check_budget`, unit-price analysis, amendments or complete energy-specific assessment. Form must not claim these. |
-| Audit | MCP/model choices with reasons; request-scoped events in owner-scoped Neon; human decision and filing events | Local tests pass. No tamper-evident chain, independent retention, institutional roles or sensitive-data redaction. |
-| Evaluator demo | Hosted sign-in; self sign-up | Public `/demo` displays genuine recorded run without login. Owner designated Roy Okola Otieno as evaluator using his existing approval-officer account; authenticated hosted review remains unverified. No independent evaluator is claimed. Login rendering alone is insufficient. |
-| Public repo and licence | Existing public repository and MIT licence | Current readiness changes need review and deployment. No institutional adoption or endorsement claimed. |
-| 30–60 second video | 35-second browser walkthrough in `frontend/public/evidence/qwen-walkthrough.mp4` | Actual recorded synthetic run playback; does not demonstrate live inference or production approval. Final challenge video must accurately disclose these limits. |
-| Challenge deadline/rules | Owner supplied 15 October 2026 | Exact organiser rules, cutoff time/timezone and eligibility require original challenge materials. |
+| Agentic depth / MCP (30) | Actual state-valid Qwen choices, bounded failed-read recovery, thin-evidence retry/abstention, four reusable tools | Small model repeats explanations; only two deterministic signals. |
+| Open-source rigour (20) | One-command Compose, pins, MIT notices, CI, honest README | Fresh model download and independently repeated clean machine remain unverified. |
+| Tender-cycle fit (20) | Intended Makueni internal-audit retrospective workflow; no missing-bid-document claim | No adoption or measured committee-time benefit; practitioner notes absent. |
+| Evaluation (15) | Ten tasks; three actual repeat runs, failure/refusal retention, complete audit | Only one complete synthetic record in repeat sample; not accuracy/generalization evidence. |
+| Defensibility (10) | Exact source citations, approved hash, private reader/export, measured latency/token counts | No tamper-proof independent audit; total electricity/hardware/hosting cost unmeasured. |
+| Demo (5) | Actual continuous run and visible failure under 3 minutes; live local/authenticated interface | Required YouTube/Vimeo publication link absent from repo; production gate not in video. |
 
-## Verified checks
+## Deployment checks still separate from challenge implementation
 
-- Original Python suite: 33 passed with MCP subprocess IPC available. Sandboxed
-  execution hung; the working run did not reproduce the reported cancel-scope error.
-- Expanded Python suite: 43 passed, including durable human checkpoint, bounded
-  choices, evidence retry/abstention, canonical report refusal and import filters.
-- Neon API suite: 14 passed against embedded Postgres, signed test JWTs and fake
-  object store/engine. Approval/filing tests include exact hashes, forged identity,
-  rejection, wrong-owner access, restart, tampering, download integrity and retry idempotency.
-- Next.js production build and Neon TypeScript checks pass.
-- Compose frontend/backend images built with verified TLS and optional managed
-  proxy CA build mounts. CPU-only Ollama completes a genuine Qwen 3B review using verified imported weights. Web/engine Compose smoke passes (HTTP 200 desk/search; missing weights return 503). One complete synthetic model workflow passed; production and real-data checks remain pending.
-
-## Remaining owner inputs
-
-1. Verify the production gate with the supplied officer registry, reported deployed via `BEISAWA_APPROVERS`. Account signup does not grant approval.
-2. Verify the evaluator workflow using Roy’s existing account; no separate evaluator identity or new account is required.
-3. Verified historical Kenya energy/solar source and licence; source archive.
-4. Original challenge/build materials and final video publishing destination.
-5. Run the Windows Ollama gateway and named Cloudflare tunnel; configure Render securely as described in `local-qwen.md`, then verify a real hosted review.
-6. Verify Resend sender/domain and Neon custom SMTP as described in `communications.md`; branded auth email body customization is still unresolved.
-
-Keep the README's not-submission-ready notice until the actual approval path,
-real model run, and evaluator demo are verified. Align form answers with the
-features and evidence above; do not claim absent tools or data.
+Roy remains officer and evaluator using the existing account. Verify production
+sign-in → review → save → approve exact revision → file → read/export and
+cross-account denial. Owner reports officer-registry deployment. Windows Ollama
+and Cloudflare Tunnel setup still needs actual hosted inference verification;
+see `local-qwen.md`. Resend sender/domain and Neon SMTP remain deployment tasks,
+not mandatory challenge-stack components. Historical energy/solar data is an
+optional extension and does not block the permitted synthetic submission.

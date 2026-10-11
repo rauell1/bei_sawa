@@ -74,3 +74,30 @@ async def test_step_budget_stops_repeated_choices(demo_record, demo_record_key, 
     assert result["abstained"]
     assert len(choices) == MAX_STEPS
     reset_settings_for_tests()
+
+
+@pytest.mark.asyncio
+async def test_failed_read_recovers_but_failed_write_is_not_retried(demo_record, demo_record_key, monkeypatch):
+    from beisawa.mcp_client import MCPToolError
+    monkeypatch.setenv("BEISAWA_LLM_MODE", "stub"); reset_settings_for_tests()
+    record = demo_record("ocds-beisawa-demo-2026-0001")
+    gateway = Gateway(record, analyze_record(record))
+    original = gateway.call
+    failures = {"get_tender_record": 1}
+    async def flaky(server, tool, args, **kwargs):
+        if failures.get(tool, 0):
+            failures[tool] -= 1
+            raise MCPToolError("simulated lost reply")
+        return await original(server, tool, args, **kwargs)
+    gateway.call = flaky
+    choices = iter(["get_tender_record", "get_tender_record", "analyze_value_for_money", "draft_review_memo", "finish"])
+    async def choose(*args, **kwargs):
+        return {"tool": next(choices), "reason": "Retry failed read using observed feedback"}
+    result = await run_tool_loop(demo_record_key(record["ocid"]), gateway=gateway, settings=get_settings(), request_id="recovery-test", chooser=choose)
+    assert not result["abstained"] and any(s["step"] == "tool_failure" for s in result["trace"])
+    failures["draft_review_memo"] = 1
+    choices = iter(["get_tender_record", "analyze_value_for_money", "draft_review_memo"])
+    with pytest.raises(MCPToolError):
+        await run_tool_loop(demo_record_key(record["ocid"]), gateway=gateway, settings=get_settings(), request_id="write-failure", chooser=choose)
+    assert failures["draft_review_memo"] == 0
+    reset_settings_for_tests()

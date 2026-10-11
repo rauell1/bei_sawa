@@ -9,7 +9,8 @@ if [[ ! -x "$ROOT/.venv/bin/python" ]]; then
   "$PYTHON_BIN" -m venv .venv
 fi
 
-"$ROOT/.venv/bin/python" -m pip install --disable-pip-version-check -e '.[dev]'
+"$ROOT/.venv/bin/python" -m pip install --disable-pip-version-check -r requirements-dev.lock
+"$ROOT/.venv/bin/python" -m pip install --disable-pip-version-check --no-deps -e .
 npm ci --no-audit --no-fund
 npm ci --prefix frontend --no-audit --no-fund
 
@@ -20,6 +21,8 @@ export MCP_FILESYSTEM_COMMAND="$ROOT/node_modules/.bin/mcp-server-filesystem"
 export API_PORT="${API_PORT:-8000}"
 export WEB_PORT="${WEB_PORT:-3000}"
 export BEISAWA_DEPLOYMENT_MODE="local"
+export BEISAWA_LLM_MODE="${BEISAWA_LLM_MODE:-ollama}"
+export OLLAMA_MODEL="${OLLAMA_MODEL:-qwen2.5:3b}"
 
 "$ROOT/.venv/bin/uvicorn" beisawa.main:app --host 0.0.0.0 --port "$API_PORT" &
 API_PID=$!

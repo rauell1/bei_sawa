@@ -27,7 +27,8 @@ Restart PowerShell after installation. In the repository, update `main`, then:
 ```powershell
 ollama pull qwen2.5:3b
 py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\python.exe -m pip install -r requirements.lock
+.\.venv\Scripts\python.exe -m pip install --no-deps -e .
 powershell -ExecutionPolicy Bypass -File .\scripts\start-qwen-gateway.ps1 -CopyToken
 ```
 

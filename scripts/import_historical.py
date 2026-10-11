@@ -10,9 +10,12 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
+from beisawa.data_conduct import validate_data_conduct
 
 
-def build_manifest(raw: bytes, *, source_url, publisher, license_url, retrieved_at, dataset_id):
+def build_manifest(raw: bytes, *, source_url, publisher, license_url, retrieved_at, dataset_id, personal_data_reviewed=False):
+    if not personal_data_reviewed:
+        raise ValueError("Review and remove personal data before import; explicit acknowledgement required")
     for url in [source_url, license_url]:
         if urlparse(url).scheme != "https" or not urlparse(url).netloc:
             raise ValueError("Provide public HTTPS source and redistribution licence URLs")
@@ -50,8 +53,10 @@ def build_manifest(raw: bytes, *, source_url, publisher, license_url, retrieved_
         keys.add(key); records.append(record)
     if not records:
         raise ValueError("No completed historical energy/solar awards with dated KES values found")
-    return {"dataset_id": dataset_id, "provenance": "historical_source_data", "notice": "Historical source subset. Source accuracy and Kenyan publisher identity must be independently verified; review signals are not allegations.",
-        "source": {"url": source_url, "publisher": publisher, "license_url": license_url, "retrieved_at": retrieved_at, "archive_sha256": hashlib.sha256(raw).hexdigest(), "selection": "compiled release; tender complete; dated pre-retrieval awards in KES; energy/solar keyword"}, "records": records}
+    manifest = {"dataset_id": dataset_id, "provenance": "historical_source_data", "notice": "Historical source subset. Source accuracy and Kenyan publisher identity must be independently verified; review signals are not allegations.",
+        "source": {"personal_data_reviewed": True, "url": source_url, "publisher": publisher, "license_url": license_url, "retrieved_at": retrieved_at, "archive_sha256": hashlib.sha256(raw).hexdigest(), "selection": "compiled release; tender complete; dated pre-retrieval awards in KES; energy/solar keyword"}, "records": records}
+    validate_data_conduct(manifest)
+    return manifest
 
 
 if __name__ == "__main__":
@@ -59,8 +64,9 @@ if __name__ == "__main__":
     parser.add_argument("input", type=Path); parser.add_argument("output", type=Path)
     for name in ["source-url", "publisher", "license-url", "retrieved-at", "dataset-id"]:
         parser.add_argument("--"+name, required=True)
+    parser.add_argument("--personal-data-reviewed", action="store_true", help="Confirm manual review and removal of personal details (required)")
     args = parser.parse_args()
-    manifest = build_manifest(args.input.read_bytes(), source_url=args.source_url, publisher=args.publisher, license_url=args.license_url, retrieved_at=args.retrieved_at, dataset_id=args.dataset_id)
+    manifest = build_manifest(args.input.read_bytes(), source_url=args.source_url, publisher=args.publisher, license_url=args.license_url, retrieved_at=args.retrieved_at, dataset_id=args.dataset_id, personal_data_reviewed=args.personal_data_reviewed)
     # Refuse to overwrite an existing archive/subset accidentally.
     with args.output.open("x", encoding="utf-8") as stream:
         json.dump(manifest, stream, indent=2, ensure_ascii=False)

@@ -427,3 +427,17 @@ h1, h2, h3, h4, p { margin-top: 0; }
   .report-reader header, .report-reader section { padding: 12px 0; border: 0; }
   .report-reader header { border-bottom: 1px solid #bbb; }
 }
+
+.live-run { max-width: 1380px; margin: auto; padding: 24px; }
+.live-run header { display: flex; gap: 24px; align-items: center; margin-bottom: 20px; }
+.live-run h1 { font-size: 26px; }
+.live-run h2 { font-size: 21px; margin-bottom: 12px; }
+.live-run section { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.live-run select { max-width: 420px; padding: 10px; margin: 0 12px; }
+.live-run p { margin: 10px 0; }
+.live-run-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.live-run li { margin: 12px 0; }
+.live-run small { display: block; }
+.live-run pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 260px; overflow: auto; }
+.live-run code { overflow-wrap: anywhere; }
+@media(max-width: 760px) { .live-run-columns { grid-template-columns: 1fr; } .live-run header { flex-wrap: wrap; } .live-run select { max-width: 100%; margin: 12px 0; } }
