@@ -1,0 +1,182 @@
+← Agentic AI for Africa Innovation Challenge
+Healthcare
+Agriculture
+Education
+Track — Governance
+
+The Bid Box Challenge
+Build an agentic AI that evaluates public tenders. Five days to build, then twenty minutes live in your own code.
+
+Apply for Governance
+Submissions
+Open
+Submission deadline
+15th October
+Who can enter
+Builders residing anywhere in Africa
+Required stack
+MCP + open source
+Overview
+Prize pool: a ticket to the MCP Conference in Nairobi. Sorting bids, ticking off documents, checking each bidder, comparing prices and writing the report is 26 days of committee work today. Your agent should do the same work in about twenty minutes, and then stop.
+
+26 days
+
+Sorting bids, ticking off documents, checking each bidder, comparing prices, writing the report
+
+~20 min
+
+What your agent should take to do the same work
+
+Committee decides
+
+Your agent stops here and hands over a sourced report
+
+One rule that is not negotiable: your agent prepares the file, it never awards the tender. Procurement law across Africa puts that decision with a human committee. Every finding must cite the document it came from; an unsourced flag against a supplier is worse than no flag at all.
+Choose one theme
+Health & life sciences
+
+Health commodity tenders
+Specs against clinical need, quantities against real consumption, prices against other buyers.
+
+Financial services
+
+Value for money
+Price outliers against past awards, budget reconciliation, unpaid-invoice exposure.
+
+Digital economy
+
+Open contracting
+Make the pipeline legible to citizens and small suppliers. Notices, deadlines, eligibility.
+
+Future of work
+
+Inclusion & local economy
+Reserved-procurement quotas, local vs outside suppliers, what awards imply for jobs.
+
+Jargon, defined up front
+MCP — Model Context Protocol
+An open standard for exposing tools to an AI model. You write a small server; any agent can call its tools.
+Agentic
+Plans a multi-step task, calls tools, checks itself, recovers from failure. Not a chatbot.
+OCDS — Open Contracting Data Standard
+The shared JSON schema every procurement portal below publishes in.
+Tender / bid
+A public invitation to supply something; a bid is one supplier's response.
+Open-weights
+A model you can download and run yourself. Qwen, Llama, Gemma, Mistral, Aya.
+Human in the loop
+The agent pauses, and a named person approves before anything consequential.
+Requirements
+Projects missing any item in either list are ineligible for prizes.
+
+What to build
+Your own MCP server. Three or more different tools, and at least one that does something; drafts, files, flags. Read-only is not an agent's hands.
+One MCP server you did not write. Community, official, or vendor. One line on why it beats writing it yourself.
+Open-source orchestration. LangGraph, CrewAI, Pydantic AI, smolagents, Letta, Goose, n8n or equivalent. No closed no-code builders.
+One full task on an open-weights model. Procurement data often cannot leave the country. Show a frontier model alongside if you like.
+A logged tool call for every action, and a gate on every irreversible one. Inputs, outputs, timestamps, and a named human approving.
+New work, built during the submission period. Existing open-source libraries are fine; an existing project resubmitted is not.
+What to submit
+A public code repository with an OSI-approved licence and a README that gets a stranger running in one command.
+A demo video under 3 minutes, uploaded to YouTube or Vimeo and publicly visible. Show an unedited agent run with tool calls on screen, not slides.
+A text description of what it does, which theme it fits, and which institution and workflow it serves. Around 300 words.
+ARCHITECTURE.md — one page. Agent shape, MCP servers built versus borrowed, and why.
+EVALS.md — eight or more test tasks with pass and fail results, plus one failure you did not fix and what you would try next.
+Three tools that work beat nine that half-work. In five days, scope is the skill we are watching for.
+
+Prizes And Awards
+Mentorship and build resources
+
+Top 40 — selected from all submissions
+
+Every shortlisted team gets mentor support and the other build resources described in the challenge brief.
+
+All expenses paid
+
+Top 10 — selected from the top 40
+
+The top 10 teams are fully funded to attend the MCP Conference in Nairobi this November.
+
+Amount TBC
+
+1st
+
+Amount TBC
+
+2nd
+
+Amount TBC
+
+3rd
+
+Amount TBC
+
+Best Women-led solution
+
+How selection works: the top 40 submissions are shortlisted from all entries and receive mentorship and build resources; from those, the top 10 are selected and all expenses are paid for them to attend the MCP Conference in Nairobi this November. One prize per team. Judges may decline to award a prize if no submission meets the bar.
+
+Judging criteria
+Criterion	What we're checking	Points
+Agentic depth and MCP craft	Does the agent genuinely plan, call tools, and recover — or is it one model call in a loop? Are the tool boundaries ones a stranger could reuse?	30
+Open-source rigour	Can we clone it and run it? Is the README honest about what is unfinished?	20
+Fit to the tender cycle	Does a named office do a real thing faster? Did you talk to anyone who does this job?	20
+Evaluation and reliability	Is the test set honest rather than curated to pass? Is run-to-run variation measured or hidden?	15
+Defensibility	Could this output survive an audit question? Sourced findings, readable log, known cost per run.	10
+Demo	Three clear minutes showing the agent working, including where it fails.	5
+One hundred points in total.	100
+Judging happens in two stages: a written review against the criteria above, shortlisting the top scores; then a 20-minute live technical review — ten minutes walking us through your code, then a new requirement added live while we watch.
+
+Judges: panel to be announced.
+
+Resources
+Nine African procurement authorities publish real contracting data in one shared schema. Build against one country and it mostly works against the rest: Kenya, Rwanda and Tanzania are updated daily; Nigeria (federal, plus Anambra, Ebonyi, Osun, Plateau), South Africa and Liberia are current; Ghana, Zambia and Uganda publish monthly.
+
+Read this before you scope. These portals publish what was tendered and what was awarded, not the bids themselves. Kenya carries roughly 260,000 tenders and 109,000 awards, and zero bid documents. So price, award-history and supplier work runs on real data today. Bid evaluation needs documents nobody publishes. State in your README which half you built on.
+
+There's no starter pack this round — what resources you build on is your own choice. The data is messy on purpose: publishers document extreme value outliers, supplier identifiers that break their own scheme, and missing buyer names. We are not cleaning it. Handling it is most of criterion one.
+
+Questions any time in the community channel; every answer is posted publicly so no team gets a private advantage.
+
+Rules
+Eligibility
+Open to developers aged 18 and over resident anywhere in Africa. Solo entries or teams of up to three. Organisers, judges and their immediate families may not enter.
+Submission period
+Opens TBC, closes TBC. Repositories are cloned at the deadline timestamp; commits after it are visible and will disqualify a submission.
+Multiple submissions
+One project per team. You may not enter the same project under more than one theme.
+Ownership
+You keep everything you build. You grant us permission to reference and demonstrate your project in community materials. Your repository must carry an OSI-approved licence to be eligible.
+Data conduct
+Use open data or your own synthetic set. Never a live tender in progress, and never anyone's personal details. Company records are fair game; individual directors' personal information is not.
+AI assistance
+Expected and not penalised — use whatever coding tools you normally use. The live review is where we separate directing a coding agent from accepting output you cannot explain.
+Language
+Submissions in English, wherever you are building from. Your agent may handle documents in any language.
+Instant disqualification: A chatbot wrapper with no autonomous tool use · an MCP server that proxies a single endpoint · an agent that awards a tender rather than preparing the file · findings against a supplier with no source · data from a live tender or anyone's personal details · a repository that does not run · results presented as real runs that never happened · someone else's project, undisclosed.
+Schedule
+Suggested build milestones — same shape for every track.
+
+Day 1
+
+Kickoff, team finalisation, and deep-dive into sector-specific problem statements and available open datasets.
+
+Days 2–3
+
+Ideation, architecture design, and initial prototyping. Milestone: "Paper Prototype" review with domain mentors.
+
+Days 4–5
+
+Core development, API/MCP integrations, and UX refinement. Milestone: midpoint "Stress Test" with end-user representatives.
+
+Day 6
+
+Final polish, documentation drafting, and open-source repository packaging.
+
+Day 7
+
+Final submission via the challenge portal; selection begins.
+
+Ready to enter governance?
+Solo entries or teams of up to 3. You can add your repository link later.
+
+Apply for Governance

@@ -14,6 +14,7 @@ from typing import Any
 from urllib.parse import quote, unquote
 
 from beisawa.config import get_settings
+from beisawa.data_conduct import validate_data_conduct
 
 
 class DuplicateRecordReference(ValueError):
@@ -28,6 +29,7 @@ def load_dataset(data_file: str | None = None) -> dict[str, Any]:
         raise ValueError(f"Invalid OCDS dataset manifest: {path}")
     if not isinstance(payload.get("dataset_id"), str) or not payload["dataset_id"].strip():
         raise ValueError(f"Dataset is missing a stable dataset_id: {path}")
+    validate_data_conduct(payload)
     return payload
 
 

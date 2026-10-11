@@ -92,7 +92,7 @@ class MCPGateway:
             args = [allowed_dir]
         else:
             command = shutil.which("npx") or "npx"
-            args = ["--yes", "@modelcontextprotocol/server-filesystem@2026.8.31", allowed_dir]
+            args = ["--yes", "@modelcontextprotocol/server-filesystem@2025.8.21", allowed_dir]
         return StdioServerParameters(
             command=command,
             args=args,

@@ -5,9 +5,9 @@ This inventory records what is and is not behind the current BeiSawa working tre
 ## Product and source-code history
 
 - The starting repository commit is `e5194e6` (`Initial commit`). The current branch history includes `b9028c4` (backend/MCP), `384b524` (Next.js desk), and `c8c8147` (governance documentation/deployment configuration), all dated 8 October 2026 and co-authored with `arena-agent`. Their exact code/doc contributions can be inspected with `git show --stat <commit>`.
-- Neon integration and approval/tool-loop changes were merged through PRs #3 and #4. Current recorded-run work is on `codex/complete-evaluation`.
+- Neon integration and approval/tool-loop changes were merged through PRs #3 and #4. Subsequent recorded-run, branding and reviewer changes were merged through PRs #5–#9. Challenge alignment is tracked separately.
 - Core BeiSawa workflow, analysis rules, MCP server/client glue, UI, and synthetic fixtures were created in this repository branch. No third-party procurement agent, benchmark, result table, or production dataset was copied into the app.
-- The owner-provided design audit and build brief were received as conversation text. The linked Google Drive folder is linked in the UI/README but has not been read, imported, or synchronized; the Google Drive connector was disconnected in this session. No claim is made about the folder contents.
+- The owner-provided design audit and build brief were received as conversation text. The original Governance challenge page text was supplied on 11 October 2026 and retained in `docs/challenge-brief.txt`; no public source URL was supplied. The linked Google Drive folder is linked in the UI/README but has not been read, imported, or synchronized; the Google Drive connector was disconnected in this session. No claim is made about the folder contents.
 
 ## Data and findings
 
@@ -20,25 +20,25 @@ The application links citation values to JSON Pointers and binds records interna
 - Model adapter: local Ollama chat API, configured by default for `qwen2.5:7b`. No weights are vendored. A genuine local CPU Qwen 3B run is recorded in EVALS; no historical-data quality result is claimed. The test stub is deterministic and is explicitly not an open-weights-model run.
 - Agent framework: LangGraph, used for a bounded Qwen tool-choice loop with evidence retry/abstention and a separate durable human approval interrupt. Stub mode retains the fixture sequence.
 - Protocol: BeiSawa's own MCP server and calls use the MCP Python SDK over stdio. The filesystem integration is also an MCP client/server call, not a direct Python helper presented as MCP.
-- Borrowed server: npm package `@modelcontextprotocol/server-filesystem@2026.8.31`, pinned by `package.json` and `package-lock.json`. Its concrete role is to read the playbook through its existing allowed-directory-aware MCP file-reading implementation; the agent does not call its mutation tools. The installed npm manifest declares `SEE LICENSE IN LICENSE`, but the downloaded package archive does not contain that file. The referenced source repository has a licensing-transition notice at the package's published source commit ([`LICENSE` at `a40bc270fb5ece62673f8a1196f57116d885c5eb`](https://github.com/modelcontextprotocol/servers/blob/a40bc270fb5ece62673f8a1196f57116d885c5eb/LICENSE)). Because per-file permissions and the exact redistribution licence are not resolved here, re-check upstream source/tag permissions and obtain appropriate legal review before release; do not infer the whole package is MIT or Apache-2.0 from the repository-level notice.
+- Borrowed server: official `@modelcontextprotocol/server-filesystem@2025.8.21`, pinned in Node, Docker and fallback commands. Official npm metadata identifies MIT, and its published source commit [`b5ba7184b9c3024a3101cb665de603abbe91ea87`](https://github.com/modelcontextprotocol/servers/blob/b5ba7184b9c3024a3101cb665de603abbe91ea87/LICENSE) carries the MIT licence retained in `third_party/licenses/mcp-server-filesystem-MIT.txt`. This replaces a newer pin with unresolved package licence wording. The older date-version is deprecated upstream; the inspected production npm audit reported zero advisories on 11 October 2026. Do not silently upgrade without checking permissions and compatibility. Its role remains MCP playbook reading; the process is not a read-only OS sandbox.
 
 ## Direct dependencies and licence notes
 
-The application dependencies are declared in `pyproject.toml`, `frontend/package.json`, root `package.json`, and their lockfiles. Python version ranges are not fully locked in `pyproject.toml`; the versions present in this sandbox are environment state, not a reproducible release bill of materials.
+The application dependencies are declared in `pyproject.toml`, `frontend/package.json`, root `package.json`, and their lockfiles. Python versions are pinned in `requirements.lock` and `requirements-dev.lock`; Docker and local development use them. These are tested environment pins, not a full security or transitive licence inventory.
 
 | Dependency family | Use | Licence note observed |
 |---|---|---|
 | FastAPI, LangGraph, MCP Python SDK | HTTP API, graph, protocol client/server | Installed metadata identifies MIT for the inspected versions. |
 | HTTPX, Uvicorn | HTTP client and ASGI server | Installed metadata identifies BSD-3-Clause for the inspected versions. |
 | Next.js, React | Browser UI | Installed npm metadata identifies MIT for the inspected versions. |
-| `@modelcontextprotocol/server-filesystem` | Borrowed MCP file-reading tool | Package metadata refers to an omitted `LICENSE` file; resolve exact package/source rights before release. |
+| `@modelcontextprotocol/server-filesystem` | Borrowed MCP file-reading tool | Explicit MIT metadata; upstream MIT source notice retained for the pinned release. |
 | Other transitive dependencies | Runtime/build/test support | Full transitive licence inventory and notices have not been generated. |
 
-The repository currently contains a full MIT `LICENSE` and `pyproject.toml` MIT metadata as a **provisional, unconfirmed** project licence. Owner confirmation of MIT versus Apache-2.0 is required before this contribution is published. If the owner chooses Apache-2.0, update the licence file, package metadata, and notices consistently.
+The repository contains a full MIT `LICENSE` and matching Python metadata. It covers original source, not model weights or third-party data. AI-assisted development is disclosed above and permitted by the supplied brief.
 
 ## Verification boundary
 
-The current branch's automated test suite uses synthetic fixtures and an explicit test stub; `EVALS.md` records the observed run. The current frontend build and post-migration test-stub live preview both passed; rerun from a clean checkout before release. No claim is made for real-data efficacy, Qwen quality, authenticated review, institutional use, hosting region, data residency, savings, update frequency, or adoption. A public recorded-run browser walkthrough exists; no named evaluator login is configured.
+The current branch's automated test suite uses synthetic fixtures and an explicit test stub; `EVALS.md` records the observed run. The current frontend build and post-migration test-stub live preview both passed; rerun from a clean checkout before release. No claim is made for real-data efficacy, Qwen quality, authenticated review, institutional use, hosting region, data residency, savings, update frequency, or adoption. A public recorded-run browser walkthrough exists; Roy is designated evaluator using his existing officer account; actual production workflow verification remains separate.
 
 ## Historical data preparation — 9 October 2026
 

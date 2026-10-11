@@ -1,6 +1,6 @@
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama@sha256:31650ae0d08bde9c8bbd845d27f2da31acddf6ff735523869d8e5ee7a9969b03
     volumes:
       - ollama-data:/root/.ollama
     environment:
@@ -19,13 +19,14 @@ services:
     restart: unless-stopped
 
   qwen-model:
-    image: ollama/ollama:latest
-    entrypoint: ["/bin/ollama"]
-    command: ["pull", "${OLLAMA_MODEL:-qwen2.5:3b}"]
+    image: ollama/ollama@sha256:31650ae0d08bde9c8bbd845d27f2da31acddf6ff735523869d8e5ee7a9969b03
+    entrypoint: ["/bin/sh", "-c"]
+    command: ['ollama show "$${OLLAMA_MODEL}" >/dev/null 2>&1 || ollama pull "$${OLLAMA_MODEL}"']
     environment:
       NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
       no_proxy: ${NO_PROXY:-localhost,127.0.0.1},ollama,api,web,0.0.0.0
       OLLAMA_HOST: ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
     depends_on:
       ollama:
         condition: service_healthy

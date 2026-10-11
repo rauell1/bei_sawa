@@ -190,6 +190,7 @@ async def create_review_notes(
             mode="ollama",
             inputs=request_body,
             outputs=output,
+            usage={key: body.get(key) for key in ["prompt_eval_count", "eval_count", "total_duration", "load_duration"]},
             started_at=started,
             duration_ms=round((time.perf_counter() - clock) * 1000, 2),
         )

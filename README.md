@@ -2,7 +2,32 @@
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
-> **Status: not submission-ready.** Four synthetic records remain the only dataset. The hosted domain renders Neon sign-in; the owner deployed Render and Neon infrastructure. Named approval, canonical report hashes, persisted human-interrupt checkpoints, idempotent internal filing, and a bounded Qwen tool-choice loop are implemented and locally tested. The owner supplied the officer identity and reported deploying its production registry; the live approval workflow still needs verification. Filed reports now have authenticated reading, printing and JSON export. Historical energy/solar data and authenticated evaluator workflow verification remain required. Roy is designated as both officer and evaluator using his existing account. A 35-second recorded-run browser walkthrough is included; the final challenge demo still needs production verification. One genuine Qwen 3B run is recorded and available at the public `/demo` route; see EVALS and [`docs/approval.md`](docs/approval.md).
+> **Status: submission verification remains open.** The stated synthetic-data prototype is implemented and tested. An actual unedited 126-second Qwen run, refusal evidence, bounded tool recovery, exact-hash human approval and private internal filing are included. Public YouTube/Vimeo publication, official submission-period dates, and authenticated production checks are not independently evidenced here. The owner reports external eligibility, practitioner contact and submission steps completed; no institutional partnership is inferred.
+
+## Run in one command
+
+After cloning, with Docker Engine/Desktop and Compose v2 installed:
+
+```bash
+docker compose up --build
+```
+
+Open **http://localhost:3000/demo/run**. This local workflow uses real Qwen 2.5 3B
+and clearly labelled invented records; it needs no Neon, Vercel or Resend account.
+First startup downloads images and about 1.93GB of model weights. Allow at least
+8GB available RAM, sufficient Docker memory, and about 20GB free disk for images,
+builds and weights. CPU speed affects latency. Existing weights are reused; model
+failures are explicit, never silently replaced with a stub. Do not publish this
+unauthenticated local stack as the production site. The named officer workflow
+is separately hosted and authenticated. [Setup and reproduction](docs/reproduce.md)
+distinguishes verified cached startup from unverified empty-volume download.
+
+**Chosen track/theme:** Governance · Financial services / Value for money.
+**Tender-cycle scope:** retrospective triage of tender estimates, awards and
+competition counts, not bid-document evaluation or bidder ranking. No historical
+price benchmark, budget reconciliation or unpaid-invoice assessment is claimed.
+The supplied challenge explicitly permits an original synthetic set; real
+historical data is optional, not an eligibility prerequisite.
 
 > **Synthetic data notice:** The bundled records are invented for demonstration. Nothing in this repository is a claim about a real tender, supplier, or person. “No automated signal” is not assurance of value or compliance.
 
@@ -28,7 +53,7 @@ Requirements: Python 3.11, Node.js 22, npm, and network access to install depend
 BEISAWA_LLM_MODE=stub ./dev.sh
 ```
 
-Open **http://localhost:3000**. This is an explicit UI/test preview; the UI labels it as not Qwen. To attempt the configured local model instead, install Ollama and pull `qwen2.5:7b`, then run `./dev.sh` without the `stub` setting. An unavailable model returns an error rather than being silently replaced.
+Open **http://localhost:3000**. This is an explicit UI/test preview; the UI labels it as not Qwen. To attempt the configured local model instead, install Ollama and pull `qwen2.5:3b`, then run `./dev.sh` without the `stub` setting. An unavailable model returns an error rather than being silently replaced.
 
 The Compose frontend/backend builds pass. A real CPU-only Qwen 3B run completed using checksum-verified official weights imported into Ollama; see [EVALS](EVALS.md). A fresh one-command registry pull and empty-volume recovery remain unverified. First-run model downloads require several gigabytes and enough memory for the model. Compose defaults to `qwen2.5:3b`; set `OLLAMA_MODEL=qwen2.5:7b` for 7B.
 
@@ -65,12 +90,12 @@ These local integration checks are not evidence of a successful remote deploymen
 
 - **Challenge:** African Agentic AI Design Challenge; Governance track, “The Bid Box Challenge”; theme “Value for money”. Organiser spelling and official submission cutoff still need confirmation.
 - **Owner:** Roy Okola Otieno · rauell.systems · Nairobi, Kenya.
-- **Proposed workflow:** retrospective review for a county internal audit or procurement office. No office partnership or practitioner interview is claimed.
+- **Proposed workflow:** retrospective review for Makueni County Government’s internal audit function. This is an intended use case, not a deployment or partnership claim. Practitioner contact is owner-reported; interview notes were not supplied.
 - **Domain:** `beisawa.rauell.systems`; hosted sign-in and review desk were observed by the owner. Authenticated end-to-end production verification is still required.
 - **Repository:** [rauell1/bei_sawa](https://github.com/rauell1/bei_sawa). The repository is public; the current working branch is not a deployed demo.
-- **Deadline:** 15 October 2026, as supplied by the owner; cutoff time and timezone have not been confirmed.
+- **Deadline:** the supplied page displays 15 October but separately marks opening/closing timestamps TBC. The owner reports the external submission steps completed; exact timestamp evidence is not in this repository. Do not push after the official cutoff.
 - **Evaluator:** Roy Okola Otieno uses the existing officer account; authenticated production workflow remains unverified. The public demo includes a 35-second recorded-run walkthrough.
-- **Licence:** [`LICENSE`](LICENSE) currently contains MIT as a provisional choice. Owner confirmation is required before publication of this contribution.
+- **Licence:** [`LICENSE`](LICENSE) currently contains MIT as the project’s OSI-approved MIT source licence. Third-party code and model weights retain their own licences.
 
 ## Architecture, evidence and limitations
 
@@ -80,4 +105,4 @@ These local integration checks are not evidence of a successful remote deploymen
 - [`SUBMISSION.md`](SUBMISSION.md) is a cautious draft, not a claim of institutional deployment or evaluation evidence.
 - [`docs/requirements.md`](docs/requirements.md) maps each acceptance item to evidence and remaining work.
 
-No live tender data, personal procurement data, external budget data, or frontier-model endpoint is included. The new approval/filing implementation saves internal immutable reports only after exact-hash human approval. Production approval still requires officer configuration and validation.
+No live tender data, personal procurement data, external budget data, or frontier-model endpoint is included. Historical import is optional and rejects unreviewed sources and active processes. The new approval/filing implementation saves internal immutable reports only after exact-hash human approval. Production approval still requires officer configuration and validation.

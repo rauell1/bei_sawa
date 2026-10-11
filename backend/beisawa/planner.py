@@ -29,7 +29,7 @@ async def choose_tool(context: dict, tools: list[dict], *, settings, request_id:
         output = json.loads(response.json()["message"]["content"])
         if not isinstance(output, dict) or set(output) != {"tool", "reason"} or output["tool"] not in names or not isinstance(output["reason"], str) or not 0 < len(output["reason"]) <= 500:
             raise ModelOutputError("Qwen returned an invalid tool choice")
-        get_audit_logger().record_model_call(request_id=request_id, model=settings.ollama_model, mode="ollama_tool_choice", inputs=payload, outputs=output, duration_ms=round((time.perf_counter()-started)*1000, 2))
+        get_audit_logger().record_model_call(request_id=request_id, model=settings.ollama_model, mode="ollama_tool_choice", inputs=payload, outputs=output, usage={key: response.json().get(key) for key in ["prompt_eval_count", "eval_count", "total_duration", "load_duration"]}, duration_ms=round((time.perf_counter()-started)*1000, 2))
         return output
     except httpx.HTTPError as exc:
         get_audit_logger().record_model_call(request_id=request_id, model=settings.ollama_model, mode="ollama_tool_choice", inputs=payload, outputs=None, error=type(exc).__name__, duration_ms=round((time.perf_counter()-started)*1000, 2))

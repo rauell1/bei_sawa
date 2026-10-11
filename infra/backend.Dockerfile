@@ -18,13 +18,14 @@ WORKDIR /app
 
 RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/proxy_ca; fi; \
-    npm install --global --no-audit --no-fund @modelcontextprotocol/server-filesystem@2026.8.31
+    npm install --global --no-audit --no-fund @modelcontextprotocol/server-filesystem@2025.8.21
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md requirements.lock ./
 COPY backend ./backend
+COPY third_party/licenses ./THIRD_PARTY_LICENSES
 RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi; \
-    python -m pip install .
+    python -m pip install -r requirements.lock && python -m pip install --no-deps .
 
 RUN mkdir -p /app/var/drafts
 EXPOSE 8000

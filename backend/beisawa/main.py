@@ -59,11 +59,13 @@ async def ollama_health() -> dict[str, Any]:
             response.raise_for_status()
         payload = response.json()
         models = payload.get("models", [])
-        installed = any(model.get("name") == settings.ollama_model for model in models)
+        installed_model = next((model for model in models if model.get("name") == settings.ollama_model), None)
+        installed = installed_model is not None
         return {
             "mode": "ollama",
             "model": settings.ollama_model,
             "available": installed,
+            "digest": installed_model.get("digest") if installed_model else None,
             "is_open_weights_model": is_qwen_family,
             "notice": (
                 "The configured Qwen 2.5 tag is present in Ollama; verify its digest and run the model task."

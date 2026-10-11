@@ -1,0 +1,33 @@
+name: Prototype checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+      - run: python -m pip install -r requirements-dev.lock
+      - run: python -m pip install --no-deps -e .
+      - run: npm ci --no-audit --no-fund
+      - run: npm ci --prefix frontend --no-audit --no-fund
+      - run: python -m pytest
+      - run: npm run test:neon
+      - run: npm run typecheck:neon
+      - run: npm run build --prefix frontend
+      # These checks use synthetic fixtures/fakes; genuine Qwen evidence is
+      # recorded separately. CI never deploys or uses production credentials.

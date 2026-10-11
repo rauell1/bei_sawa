@@ -9,7 +9,7 @@ from mcp.server.fastmcp import FastMCP
 
 from beisawa.analysis import analyze_record
 from beisawa.config import get_settings
-from beisawa.data import dataset_source_id, find_record, search_records
+from beisawa.data import dataset_source_id, find_record, search_records, load_dataset
 from beisawa.drafts import create_draft
 
 mcp = FastMCP("bei-sawa-ocds-review")
@@ -30,7 +30,7 @@ def search_tenders(query: str = "", limit: int = 20) -> str:
             "items": items,
             "count": len(items),
             "source_id": dataset_source_id(),
-            "provenance": "synthetic_demo_data",
+            "provenance": load_dataset().get("provenance", "unverified_source"),
         }
     )
 
