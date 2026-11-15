@@ -1,4 +1,6 @@
-# BeiSawa deployment: Vercel + Neon
+# BeiSawa deployment: Cloudflare + Neon
+
+> **Web hosting moved from Vercel to Cloudflare Workers (November 2026).** The Next.js app in `frontend/` is built with the OpenNext Cloudflare adapter (`frontend/open-next.config.ts`, `frontend/wrangler.jsonc`, which attaches `beisawa.rauell.systems`) and deployed by `.github/workflows/deploy-frontend.yml` on every push to `main` that touches `frontend/`. That workflow needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. Set the web app's runtime variables (`NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `NEON_FUNCTION_API_BASE_URL`) as Worker secrets with `npx wrangler secret put NAME` in `frontend/`. Never set `BEISAWA_DEPLOYMENT_MODE=local` there; `lib/auth/server.ts` also refuses the local bypass on Workers. Where the steps below say Vercel, read Cloudflare Workers.
 
 Production web origin: `https://beisawa.rauell.systems`.
 Neon project: `lingering-forest-76317462`; target branch: `production`.

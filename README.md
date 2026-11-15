@@ -66,9 +66,9 @@ npm run build --prefix frontend
 
 These checks cover the current prototype only. They do not establish production security, Qwen task quality, deployment readiness, or challenge eligibility.
 
-## Neon and Vercel deployment
+## Neon and Cloudflare deployment
 
-The production architecture uses Next.js on Vercel, Neon Managed Auth, a Neon
+The production architecture uses Next.js on Cloudflare Workers (moved from Vercel in November 2026; see `frontend/wrangler.jsonc`), Neon Managed Auth, a Neon
 Function API, Neon Postgres for reviewer records/activity, and private Neon Object
 Storage for saved drafts. The Python/MCP review engine runs as a separate service
 and independently verifies Neon JWTs. The planned web domain is
