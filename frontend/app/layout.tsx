@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { BRAND } from "@/lib/brand";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         {children}
-        <Analytics />
       </body>
     </html>
   );
