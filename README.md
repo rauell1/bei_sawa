@@ -106,3 +106,33 @@ These local integration checks are not evidence of a successful remote deploymen
 - [`docs/requirements.md`](docs/requirements.md) maps each acceptance item to evidence and remaining work.
 
 No live tender data, personal procurement data, external budget data, or frontier-model endpoint is included. Historical import is optional and rejects unreviewed sources and active processes. The new approval/filing implementation saves internal immutable reports only after exact-hash human approval. Production approval still requires officer configuration and validation.
+
+## Project information
+
+| | |
+|---|---|
+| Live site | https://beisawa.rauell.systems |
+| Hosting | Cloudflare Workers |
+| Default branch | `main` |
+| Repository | Public |
+
+### Stack
+
+- Python 3.11+ backend (FastAPI) in `backend/`
+- Next.js 16 frontend in `frontend/`, deployed to Cloudflare Workers
+- Neon PostgreSQL and Neon Auth
+- Docker Compose for the one-command local run
+
+### Deployment
+
+Production runs on Cloudflare Workers at https://beisawa.rauell.systems. `.github/workflows/deploy-frontend.yml` builds and deploys on every push to `main`, using the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. Public build-time values are repository variables; runtime secrets are Worker secrets.
+
+### Contributing and security
+
+- How to set up, test and submit changes: [CONTRIBUTING.md](CONTRIBUTING.md)
+- How to report a vulnerability: [SECURITY.md](SECURITY.md)
+- Expected behaviour in project spaces: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+
+### Licence
+
+See [LICENSE](LICENSE).
