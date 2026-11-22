@@ -1,4 +1,20 @@
-# BeiSawa: Value-for-Money Review Agent
+<!-- header:start -->
+<div align="center">
+
+# BeiSawa
+
+**BeiSawa ("fair price" in Swahili): an auditable value-for-money review agent for public procurement records, with evidence-led findings and human approval. FastAPI backend, Next.js frontend.**
+
+[![Live: beisawa.rauell.systems](https://img.shields.io/badge/Live-beisawa.rauell.systems-0d9488?style=for-the-badge&logo=cloudflare&logoColor=white)](https://beisawa.rauell.systems) ![Status: live](https://img.shields.io/badge/Status-Live-2ea44f?style=for-the-badge) ![Public repository](https://img.shields.io/badge/Repo-Public-555555?style=for-the-badge&logo=github)
+
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white) ![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)
+
+[Live site](https://beisawa.rauell.systems) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md)
+
+</div>
+
+---
+<!-- header:end -->
 
 **“Bei sawa” means “fair price” in Swahili.** BeiSawa is a governance-track prototype for evidence-led review of procurement records. It is not a generic business website and it cannot award, reject, cancel, publish, or submit a tender.
 
